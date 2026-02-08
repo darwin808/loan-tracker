@@ -1,22 +1,41 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import type { Loan, LoanInput, Payment } from "@/lib/types";
 
 export function useLoans() {
+  const router = useRouter();
   const [loans, setLoans] = useState<Loan[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleResponse = useCallback(
+    async (res: Response) => {
+      if (res.status === 401) {
+        router.push("/login");
+        throw new Error("Unauthorized");
+      }
+      return res;
+    },
+    [router]
+  );
+
   const fetchAll = useCallback(async () => {
-    const [loansRes, paymentsRes] = await Promise.all([
-      fetch("/api/loans"),
-      fetch("/api/payments"),
-    ]);
-    setLoans(await loansRes.json());
-    setPayments(await paymentsRes.json());
-    setLoading(false);
-  }, []);
+    try {
+      const [loansRes, paymentsRes] = await Promise.all([
+        fetch("/api/loans").then(handleResponse),
+        fetch("/api/payments").then(handleResponse),
+      ]);
+      setLoans(await loansRes.json());
+      setPayments(await paymentsRes.json());
+    } catch (e) {
+      if (e instanceof Error && e.message === "Unauthorized") return;
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, [handleResponse]);
 
   useEffect(() => {
     fetchAll();
@@ -27,7 +46,7 @@ export function useLoans() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
-    });
+    }).then(handleResponse);
     if (!res.ok) {
       const data = await res.json();
       throw new Error(data.errors?.join(", ") ?? "Failed to create loan");
@@ -40,7 +59,7 @@ export function useLoans() {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
-    });
+    }).then(handleResponse);
     if (!res.ok) {
       const data = await res.json();
       throw new Error(data.errors?.join(", ") ?? "Failed to update loan");
@@ -49,7 +68,7 @@ export function useLoans() {
   };
 
   const removeLoan = async (id: number) => {
-    await fetch(`/api/loans/${id}`, { method: "DELETE" });
+    await fetch(`/api/loans/${id}`, { method: "DELETE" }).then(handleResponse);
     await fetchAll();
   };
 
@@ -58,7 +77,7 @@ export function useLoans() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ loanId, date, amount }),
-    });
+    }).then(handleResponse);
     if (!res.ok) {
       const data = await res.json();
       throw new Error(data.errors?.join(", ") ?? "Failed to record payment");
@@ -67,7 +86,7 @@ export function useLoans() {
   };
 
   const undoPayment = async (loanId: number, date: string) => {
-    await fetch(`/api/payments?loanId=${loanId}&date=${date}`, { method: "DELETE" });
+    await fetch(`/api/payments?loanId=${loanId}&date=${date}`, { method: "DELETE" }).then(handleResponse);
     await fetchAll();
   };
 

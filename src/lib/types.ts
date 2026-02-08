@@ -1,5 +1,11 @@
 export type Frequency = "daily" | "weekly" | "monthly";
 
+export interface User {
+  id: number;
+  username: string;
+  createdAt: string;
+}
+
 export interface Loan {
   id: number;
   name: string;

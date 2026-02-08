@@ -1,40 +1,58 @@
 import { NextResponse } from "next/server";
 import { getAllLoans, createLoan } from "@/lib/loans";
+import { requireAuth, AuthError } from "@/lib/auth";
 import type { LoanInput, Frequency } from "@/lib/types";
 
 export async function GET() {
-  const loans = await getAllLoans();
-  return NextResponse.json(loans);
+  try {
+    const { userId } = await requireAuth();
+    const loans = await getAllLoans(userId);
+    return NextResponse.json(loans);
+  } catch (e) {
+    if (e instanceof AuthError) {
+      return NextResponse.json({ errors: ["Unauthorized"] }, { status: 401 });
+    }
+    throw e;
+  }
 }
 
 const VALID_FREQUENCIES: Frequency[] = ["daily", "weekly", "monthly"];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const errors: string[] = [];
+  try {
+    const { userId } = await requireAuth();
 
-  const name = typeof body.name === "string" ? body.name.trim() : "";
-  if (!name) errors.push("Name is required");
+    const body = await request.json();
+    const errors: string[] = [];
 
-  const amount = Number(body.amount);
-  if (!Number.isFinite(amount) || amount <= 0) errors.push("Amount must be greater than 0");
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+    if (!name) errors.push("Name is required");
 
-  const paymentAmount = Number(body.paymentAmount);
-  if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) errors.push("Payment amount must be greater than 0");
-  if (paymentAmount > amount) errors.push("Payment amount cannot exceed total amount");
+    const amount = Number(body.amount);
+    if (!Number.isFinite(amount) || amount <= 0) errors.push("Amount must be greater than 0");
 
-  const frequency = body.frequency as Frequency;
-  if (!VALID_FREQUENCIES.includes(frequency)) errors.push("Invalid frequency");
+    const paymentAmount = Number(body.paymentAmount);
+    if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) errors.push("Payment amount must be greater than 0");
+    if (paymentAmount > amount) errors.push("Payment amount cannot exceed total amount");
 
-  const startDate = body.startDate as string;
-  if (!DATE_RE.test(startDate)) errors.push("Invalid start date format");
+    const frequency = body.frequency as Frequency;
+    if (!VALID_FREQUENCIES.includes(frequency)) errors.push("Invalid frequency");
 
-  if (errors.length > 0) {
-    return NextResponse.json({ errors }, { status: 400 });
+    const startDate = body.startDate as string;
+    if (!DATE_RE.test(startDate)) errors.push("Invalid start date format");
+
+    if (errors.length > 0) {
+      return NextResponse.json({ errors }, { status: 400 });
+    }
+
+    const input: LoanInput = { name, amount, paymentAmount, frequency, startDate };
+    const loan = await createLoan(userId, input);
+    return NextResponse.json(loan, { status: 201 });
+  } catch (e) {
+    if (e instanceof AuthError) {
+      return NextResponse.json({ errors: ["Unauthorized"] }, { status: 401 });
+    }
+    throw e;
   }
-
-  const input: LoanInput = { name, amount, paymentAmount, frequency, startDate };
-  const loan = await createLoan(input);
-  return NextResponse.json(loan, { status: 201 });
 }

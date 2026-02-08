@@ -14,41 +14,49 @@ function rowToLoan(row: Row): Loan {
   };
 }
 
-export async function getAllLoans(): Promise<Loan[]> {
+export async function getAllLoans(userId: number): Promise<Loan[]> {
   await initDb;
-  const result = await db.execute("SELECT * FROM loans ORDER BY created_at DESC");
+  const result = await db.execute({
+    sql: "SELECT * FROM loans WHERE user_id = ? ORDER BY created_at DESC",
+    args: [userId],
+  });
   return result.rows.map(rowToLoan);
 }
 
-export async function getLoanById(id: number): Promise<Loan | undefined> {
+export async function getLoanById(id: number, userId: number): Promise<Loan | undefined> {
   await initDb;
-  const result = await db.execute({ sql: "SELECT * FROM loans WHERE id = ?", args: [id] });
+  const result = await db.execute({
+    sql: "SELECT * FROM loans WHERE id = ? AND user_id = ?",
+    args: [id, userId],
+  });
   return result.rows.length > 0 ? rowToLoan(result.rows[0]) : undefined;
 }
 
-export async function createLoan(input: LoanInput): Promise<Loan> {
+export async function createLoan(userId: number, input: LoanInput): Promise<Loan> {
   await initDb;
   const result = await db.execute({
-    sql: "INSERT INTO loans (name, amount, payment_amount, frequency, start_date) VALUES (?, ?, ?, ?, ?)",
-    args: [input.name, input.amount, input.paymentAmount, input.frequency, input.startDate],
+    sql: "INSERT INTO loans (name, amount, payment_amount, frequency, start_date, user_id) VALUES (?, ?, ?, ?, ?, ?)",
+    args: [input.name, input.amount, input.paymentAmount, input.frequency, input.startDate, userId],
   });
-  return (await getLoanById(Number(result.lastInsertRowid)))!;
+  return (await getLoanById(Number(result.lastInsertRowid), userId))!;
 }
 
-export async function updateLoan(id: number, input: LoanInput): Promise<Loan | undefined> {
+export async function updateLoan(id: number, userId: number, input: LoanInput): Promise<Loan | undefined> {
   await initDb;
   const result = await db.execute({
-    sql: "UPDATE loans SET name = ?, amount = ?, payment_amount = ?, frequency = ?, start_date = ? WHERE id = ?",
-    args: [input.name, input.amount, input.paymentAmount, input.frequency, input.startDate, id],
+    sql: "UPDATE loans SET name = ?, amount = ?, payment_amount = ?, frequency = ?, start_date = ? WHERE id = ? AND user_id = ?",
+    args: [input.name, input.amount, input.paymentAmount, input.frequency, input.startDate, id, userId],
   });
   if (result.rowsAffected === 0) return undefined;
-  return (await getLoanById(id))!;
+  return (await getLoanById(id, userId))!;
 }
 
-export async function deleteLoan(id: number): Promise<boolean> {
+export async function deleteLoan(id: number, userId: number): Promise<boolean> {
   await initDb;
-  // Delete payments first (cascade may not work on all libsql configs)
+  // Verify ownership before deleting
+  const loan = await getLoanById(id, userId);
+  if (!loan) return false;
   await db.execute({ sql: "DELETE FROM payments WHERE loan_id = ?", args: [id] });
-  const result = await db.execute({ sql: "DELETE FROM loans WHERE id = ?", args: [id] });
+  const result = await db.execute({ sql: "DELETE FROM loans WHERE id = ? AND user_id = ?", args: [id, userId] });
   return result.rowsAffected > 0;
 }

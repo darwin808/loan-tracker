@@ -1,16 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useLoans } from "@/hooks/useLoans";
 import LoanForm from "@/components/LoanForm";
 import LoanList from "@/components/LoanList";
 import Calendar from "@/components/Calendar";
-import type { Loan, LoanInput } from "@/lib/types";
+import type { Loan, LoanInput, User } from "@/lib/types";
 
 export default function Home() {
+  const router = useRouter();
   const { loans, payments, loading, addLoan, editLoan, removeLoan, recordPayment, undoPayment } =
     useLoans();
   const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me").then((res) => {
+      if (res.status === 401) {
+        router.push("/login");
+        return null;
+      }
+      return res.json();
+    }).then((data) => {
+      if (data) setUser(data);
+    });
+  }, [router]);
+
+  const handleLogout = useCallback(async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  }, [router]);
 
   const handleSubmit = async (input: LoanInput) => {
     if (editingLoan) {
@@ -29,8 +49,19 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gb-bg1">
       <header className="bg-gb-bg0 border-b border-gb-bg3">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-xl font-bold text-gb-fg0">Loan Tracker</h1>
+          {user && (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gb-fg3">{user.username}</span>
+              <button
+                onClick={handleLogout}
+                className="rounded-md border border-gb-bg3 px-3 py-1 text-sm text-gb-fg2 hover:bg-gb-bg1"
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
