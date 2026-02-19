@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   startOfMonth,
   endOfMonth,
@@ -16,6 +16,7 @@ import {
 } from "date-fns";
 import CalendarDayCell, { type DayPayment } from "./CalendarDayCell";
 import PaymentDialog, { type PaymentDialogData } from "./PaymentDialog";
+import DayOverviewDialog from "./DayOverviewDialog";
 import { getPaymentSchedule } from "@/lib/payments";
 import { getLoanColor } from "@/lib/colors";
 import type { Loan, Payment } from "@/lib/types";
@@ -36,6 +37,7 @@ export default function Calendar({ loans, payments, onRecordPayment, onUndoPayme
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [view, setView] = useState<ViewMode>("month");
   const [dialog, setDialog] = useState<PaymentDialogData | null>(null);
+  const [dayOverview, setDayOverview] = useState<{ payments: DayPayment[]; date: string } | null>(null);
 
   // Build a map of date string -> day payments across all loans
   const paymentMap = useMemo(() => {
@@ -129,6 +131,7 @@ export default function Calendar({ loans, payments, onRecordPayment, onUndoPayme
           currentMonth={currentMonth}
           paymentMap={paymentMap}
           onPaymentClick={handlePaymentClick}
+          onOverflowClick={(payments, date) => setDayOverview({ payments, date })}
         />
       ) : (
         <YearView
@@ -138,6 +141,18 @@ export default function Calendar({ loans, payments, onRecordPayment, onUndoPayme
             setCurrentMonth(month);
             setView("month");
           }}
+        />
+      )}
+
+      {dayOverview && (
+        <DayOverviewDialog
+          date={dayOverview.date}
+          payments={dayOverview.payments}
+          onPaymentClick={(p) => {
+            setDayOverview(null);
+            handlePaymentClick(p, dayOverview.date);
+          }}
+          onClose={() => setDayOverview(null)}
         />
       )}
 
@@ -159,10 +174,12 @@ function MonthView({
   currentMonth,
   paymentMap,
   onPaymentClick,
+  onOverflowClick,
 }: {
   currentMonth: Date;
   paymentMap: Map<string, DayPayment[]>;
   onPaymentClick: (p: DayPayment, date: string) => void;
+  onOverflowClick: (payments: DayPayment[], date: string) => void;
 }) {
   const calendarDays = useMemo(() => {
     const monthStart = startOfMonth(currentMonth);
@@ -202,6 +219,7 @@ function MonthView({
               currentMonth={currentMonth}
               payments={dayPayments}
               onPaymentClick={onPaymentClick}
+              onOverflowClick={onOverflowClick}
             />
           );
         })}
@@ -249,6 +267,9 @@ function MiniMonth({
   paymentMap: Map<string, DayPayment[]>;
   onClick: () => void;
 }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const days = useMemo(() => {
     const monthStart = startOfMonth(month);
     const monthEnd = endOfMonth(month);
@@ -282,7 +303,7 @@ function MiniMonth({
           const inMonth = isSameMonth(date, month);
           const dateStr = format(date, "yyyy-MM-dd");
           const dayPayments = paymentMap.get(dateStr) ?? [];
-          const today = isToday(date);
+          const today = mounted && isToday(date);
           const allPaid = dayPayments.length > 0 && dayPayments.every((p) => p.paid);
 
           return (

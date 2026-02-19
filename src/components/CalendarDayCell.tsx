@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { isSameMonth, isToday } from "date-fns";
 import LoanIndicator from "./LoanIndicator";
 import type { LoanColor } from "@/lib/colors";
@@ -17,6 +18,7 @@ interface CalendarDayCellProps {
   currentMonth: Date;
   payments: DayPayment[];
   onPaymentClick?: (payment: DayPayment, date: string) => void;
+  onOverflowClick?: (payments: DayPayment[], date: string) => void;
 }
 
 const MAX_VISIBLE = 3;
@@ -26,9 +28,12 @@ export default function CalendarDayCell({
   currentMonth,
   payments,
   onPaymentClick,
+  onOverflowClick,
 }: CalendarDayCellProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const inMonth = isSameMonth(date, currentMonth);
-  const today = isToday(date);
+  const today = mounted && isToday(date);
   const overflow = payments.length - MAX_VISIBLE;
 
   const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -64,7 +69,13 @@ export default function CalendarDayCell({
           />
         ))}
         {overflow > 0 && (
-          <div className="text-[10px] text-gb-fg4 pl-1">+{overflow} more</div>
+          <button
+            type="button"
+            onClick={() => onOverflowClick?.(payments, dateStr)}
+            className="text-[10px] text-gb-blue hover:text-gb-blue-dim pl-1 cursor-pointer"
+          >
+            +{overflow} more
+          </button>
         )}
       </div>
     </div>
