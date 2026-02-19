@@ -43,8 +43,8 @@ export default function Calendar({ loans, payments, onRecordPayment, onUndoPayme
   const paymentMap = useMemo(() => {
     const map = new Map<string, DayPayment[]>();
 
-    loans.forEach((loan, index) => {
-      const color = getLoanColor(index);
+    loans.forEach((loan) => {
+      const color = getLoanColor(loan.id);
       const schedule = getPaymentSchedule(loan, payments);
 
       for (const entry of schedule) {

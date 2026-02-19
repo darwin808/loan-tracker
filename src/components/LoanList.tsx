@@ -37,8 +37,8 @@ export default function LoanList({ loans, payments, onEdit, onDelete }: LoanList
           ₱{totalPaidAll.toLocaleString()} / ₱{totalAmount.toLocaleString()}
         </span>
       </div>
-      {loans.map((loan, index) => {
-        const color = getLoanColor(index);
+      {loans.map((loan) => {
+        const color = getLoanColor(loan.id);
         const schedule = getPaymentSchedule(loan, payments);
         const endDate = getEndDate(loan, payments);
         const paid = getTotalPaid(loan, payments);
