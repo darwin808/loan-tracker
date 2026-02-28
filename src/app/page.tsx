@@ -163,50 +163,24 @@ export default function Home() {
           <div className="w-full lg:w-80 shrink-0 space-y-4">
             {/* Tab toggle */}
             <div className="flex rounded-lg border border-gb-bg3 overflow-hidden">
-              <button
-                onClick={() => setSidebarTab("loans")}
-                className={`flex-1 px-3 py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                  sidebarTab === "loans"
-                    ? "bg-gb-blue text-gb-bg0"
-                    : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
-                }`}
-              >
-                <Landmark size={14} />
-                Loans
-              </button>
-              <button
-                onClick={() => setSidebarTab("bills")}
-                className={`flex-1 px-3 py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                  sidebarTab === "bills"
-                    ? "bg-gb-orange text-gb-bg0"
-                    : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
-                }`}
-              >
-                <Receipt size={14} />
-                Bills
-              </button>
-              <button
-                onClick={() => setSidebarTab("income")}
-                className={`flex-1 px-3 py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                  sidebarTab === "income"
-                    ? "bg-gb-green text-gb-bg0"
-                    : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
-                }`}
-              >
-                <TrendingUp size={14} />
-                Income
-              </button>
-              <button
-                onClick={() => setSidebarTab("savings")}
-                className={`flex-1 px-3 py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                  sidebarTab === "savings"
-                    ? "bg-gb-purple text-gb-bg0"
-                    : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
-                }`}
-              >
-                <PiggyBank size={14} />
-                Savings
-              </button>
+              {([
+                { key: "loans" as const, icon: Landmark, label: "Loans", active: "bg-gb-blue text-gb-bg0" },
+                { key: "bills" as const, icon: Receipt, label: "Bills", active: "bg-gb-orange text-gb-bg0" },
+                { key: "income" as const, icon: TrendingUp, label: "Income", active: "bg-gb-green text-gb-bg0" },
+                { key: "savings" as const, icon: PiggyBank, label: "Savings", active: "bg-gb-purple text-gb-bg0" },
+              ]).map(({ key, icon: Icon, label, active }) => (
+                <button
+                  key={key}
+                  onClick={() => setSidebarTab(key)}
+                  title={label}
+                  className={`flex-1 py-2 text-xs font-medium transition-colors flex flex-col items-center gap-0.5 ${
+                    sidebarTab === key ? active : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
+                  }`}
+                >
+                  <Icon size={16} />
+                  {label}
+                </button>
+              ))}
             </div>
 
             {/* Add button */}
