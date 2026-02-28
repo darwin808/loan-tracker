@@ -18,8 +18,12 @@ interface CalendarDayCellProps {
   date: Date;
   currentMonth: Date;
   payments: DayPayment[];
+  selected?: boolean;
   onPaymentClick?: (payment: DayPayment, date: string) => void;
   onOverflowClick?: (payments: DayPayment[], date: string) => void;
+  onDragStart?: (date: string) => void;
+  onDragEnter?: (date: string) => void;
+  onDragEnd?: () => void;
 }
 
 const MAX_VISIBLE = 3;
@@ -28,8 +32,12 @@ export default function CalendarDayCell({
   date,
   currentMonth,
   payments,
+  selected,
   onPaymentClick,
   onOverflowClick,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
 }: CalendarDayCellProps) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -41,9 +49,26 @@ export default function CalendarDayCell({
 
   return (
     <div
-      className={`min-h-[80px] border border-gb-bg2 p-1 ${
-        inMonth ? "bg-gb-bg0" : "bg-gb-bg1"
+      className={`min-h-[80px] border border-gb-bg2 p-1 select-none ${
+        selected
+          ? "bg-gb-blue-bg"
+          : inMonth
+          ? "bg-gb-bg0"
+          : "bg-gb-bg1"
       }`}
+      onMouseDown={(e) => {
+        // Only start drag from the cell background, not from indicators
+        if ((e.target as HTMLElement).closest("button")) return;
+        e.preventDefault();
+        onDragStart?.(dateStr);
+      }}
+      onMouseEnter={() => onDragEnter?.(dateStr)}
+      onMouseUp={() => onDragEnd?.()}
+      onTouchStart={(e) => {
+        if ((e.target as HTMLElement).closest("button")) return;
+        onDragStart?.(dateStr);
+      }}
+      onTouchEnd={() => onDragEnd?.()}
     >
       <div
         className={`text-xs font-medium mb-0.5 ${

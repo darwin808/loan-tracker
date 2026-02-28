@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   startOfMonth,
   endOfMonth,
@@ -17,6 +17,7 @@ import {
 import CalendarDayCell, { type DayPayment } from "./CalendarDayCell";
 import PaymentDialog, { type PaymentDialogData } from "./PaymentDialog";
 import DayOverviewDialog from "./DayOverviewDialog";
+import RangeSummaryDialog from "./RangeSummaryDialog";
 import { getPaymentSchedule } from "@/lib/payments";
 import { getBillSchedule } from "@/lib/bill-schedule";
 import { getLoanColor, getBillColor } from "@/lib/colors";
@@ -43,6 +44,37 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
   const [view, setView] = useState<ViewMode>("month");
   const [dialog, setDialog] = useState<PaymentDialogData | null>(null);
   const [dayOverview, setDayOverview] = useState<{ payments: DayPayment[]; date: string } | null>(null);
+  const [rangeSummary, setRangeSummary] = useState<{ start: string; end: string } | null>(null);
+  const [dragStart, setDragStart] = useState<string | null>(null);
+  const [dragEnd, setDragEnd] = useState<string | null>(null);
+  const isDragging = dragStart !== null;
+
+  const handleDragStart = useCallback((date: string) => {
+    setDragStart(date);
+    setDragEnd(date);
+  }, []);
+
+  const handleDragEnter = useCallback((date: string) => {
+    if (dragStart) setDragEnd(date);
+  }, [dragStart]);
+
+  const handleDragEnd = useCallback(() => {
+    if (dragStart && dragEnd) {
+      const [start, end] = dragStart <= dragEnd ? [dragStart, dragEnd] : [dragEnd, dragStart];
+      if (start !== end) {
+        setRangeSummary({ start, end });
+      }
+    }
+    setDragStart(null);
+    setDragEnd(null);
+  }, [dragStart, dragEnd]);
+
+  // Compute selected date range for highlighting
+  const selectedRange = useMemo(() => {
+    if (!dragStart || !dragEnd) return null;
+    const [start, end] = dragStart <= dragEnd ? [dragStart, dragEnd] : [dragEnd, dragStart];
+    return { start, end };
+  }, [dragStart, dragEnd]);
 
   // Build a map of date string -> day payments across all loans and bills
   const paymentMap = useMemo(() => {
@@ -92,6 +124,14 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
 
     return map;
   }, [loans, payments, bills, billPayments, currentMonth]);
+
+  // End drag if mouse is released anywhere on the page
+  useEffect(() => {
+    if (!isDragging) return;
+    const handleMouseUp = () => handleDragEnd();
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => window.removeEventListener("mouseup", handleMouseUp);
+  }, [isDragging, handleDragEnd]);
 
   const currentYear = currentMonth.getFullYear();
 
@@ -159,8 +199,12 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
         <MonthView
           currentMonth={currentMonth}
           paymentMap={paymentMap}
+          selectedRange={selectedRange}
           onPaymentClick={handlePaymentClick}
           onOverflowClick={(payments, date) => setDayOverview({ payments, date })}
+          onDragStart={handleDragStart}
+          onDragEnter={handleDragEnter}
+          onDragEnd={handleDragEnd}
         />
       ) : (
         <YearView
@@ -185,6 +229,15 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
         />
       )}
 
+      {rangeSummary && (
+        <RangeSummaryDialog
+          startDate={rangeSummary.start}
+          endDate={rangeSummary.end}
+          paymentMap={paymentMap}
+          onClose={() => setRangeSummary(null)}
+        />
+      )}
+
       {dialog && (
         <PaymentDialog
           data={dialog}
@@ -204,13 +257,21 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
 function MonthView({
   currentMonth,
   paymentMap,
+  selectedRange,
   onPaymentClick,
   onOverflowClick,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
 }: {
   currentMonth: Date;
   paymentMap: Map<string, DayPayment[]>;
+  selectedRange: { start: string; end: string } | null;
   onPaymentClick: (p: DayPayment, date: string) => void;
   onOverflowClick: (payments: DayPayment[], date: string) => void;
+  onDragStart: (date: string) => void;
+  onDragEnter: (date: string) => void;
+  onDragEnd: () => void;
 }) {
   const calendarDays = useMemo(() => {
     const monthStart = startOfMonth(currentMonth);
@@ -243,14 +304,19 @@ function MonthView({
         {calendarDays.map((date, i) => {
           const dateStr = format(date, "yyyy-MM-dd");
           const dayPayments = paymentMap.get(dateStr) ?? [];
+          const isSelected = selectedRange !== null && dateStr >= selectedRange.start && dateStr <= selectedRange.end;
           return (
             <CalendarDayCell
               key={i}
               date={date}
               currentMonth={currentMonth}
               payments={dayPayments}
+              selected={isSelected}
               onPaymentClick={onPaymentClick}
               onOverflowClick={onOverflowClick}
+              onDragStart={onDragStart}
+              onDragEnter={onDragEnter}
+              onDragEnd={onDragEnd}
             />
           );
         })}
