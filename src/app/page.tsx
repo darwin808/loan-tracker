@@ -221,10 +221,10 @@ export default function Home() {
               </button>
             )}
 
-            {/* Scrollable list */}
-            {sidebarTab === "loans" && (
-              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 max-h-[400px] overflow-y-auto">
-                {loading ? (
+            {/* Scrollable list — fixed height container */}
+            <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 h-[400px] overflow-y-auto">
+              {sidebarTab === "loans" && (
+                loading ? (
                   <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
                 ) : (
                   <LoanList
@@ -233,12 +233,10 @@ export default function Home() {
                     onEdit={setEditingLoan}
                     onDelete={handleDelete}
                   />
-                )}
-              </div>
-            )}
-            {sidebarTab === "bills" && (
-              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 max-h-[400px] overflow-y-auto">
-                {billsLoading ? (
+                )
+              )}
+              {sidebarTab === "bills" && (
+                billsLoading ? (
                   <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
                 ) : (
                   <BillList
@@ -247,12 +245,10 @@ export default function Home() {
                     onDelete={handleBillDelete}
                     filterType="expense"
                   />
-                )}
-              </div>
-            )}
-            {sidebarTab === "income" && (
-              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 max-h-[400px] overflow-y-auto">
-                {billsLoading ? (
+                )
+              )}
+              {sidebarTab === "income" && (
+                billsLoading ? (
                   <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
                 ) : (
                   <BillList
@@ -261,12 +257,10 @@ export default function Home() {
                     onDelete={handleBillDelete}
                     filterType="income"
                   />
-                )}
-              </div>
-            )}
-            {sidebarTab === "savings" && (
-              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 max-h-[400px] overflow-y-auto">
-                {savingsLoading ? (
+                )
+              )}
+              {sidebarTab === "savings" && (
+                savingsLoading ? (
                   <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
                 ) : (
                   <SavingsList
@@ -274,9 +268,9 @@ export default function Home() {
                     onEdit={setEditingSavings}
                     onDelete={handleSavingsDelete}
                   />
-                )}
-              </div>
-            )}
+                )
+              )}
+            </div>
 
             {/* Donut chart — current month summary */}
             {hasChartData && (
