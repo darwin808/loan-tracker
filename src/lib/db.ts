@@ -65,6 +65,13 @@ async function runMigrations() {
   } catch {
     // Column already exists — ignore
   }
+
+  // Add type column to bills (expense vs income)
+  try {
+    await db.execute("ALTER TABLE bills ADD COLUMN type TEXT NOT NULL DEFAULT 'expense'");
+  } catch {
+    // Column already exists — ignore
+  }
 }
 
 export const initDb = runMigrations();

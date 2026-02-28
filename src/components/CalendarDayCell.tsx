@@ -4,7 +4,7 @@ import LoanIndicator from "./LoanIndicator";
 import type { LoanColor } from "@/lib/colors";
 
 export interface DayPayment {
-  type: "loan" | "bill";
+  type: "loan" | "bill" | "income";
   itemId: number;
   name: string;
   scheduledAmount: number;

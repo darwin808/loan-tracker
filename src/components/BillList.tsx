@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
-import type { Bill } from "@/lib/types";
-import { getBillColor } from "@/lib/colors";
+import type { Bill, BillType } from "@/lib/types";
+import { getBillColor, getIncomeColor } from "@/lib/colors";
 
 function fmtDate(d: string) { return format(parseISO(d), "MMM d, yyyy"); }
 
@@ -11,6 +11,7 @@ interface BillListProps {
   bills: Bill[];
   onEdit: (bill: Bill) => void;
   onDelete: (id: number) => void;
+  filterType?: BillType;
 }
 
 const FREQUENCY_LABELS: Record<string, string> = {
@@ -30,22 +31,24 @@ const RATE_SUFFIX: Record<string, string> = {
   yearly: "/yr",
 };
 
-export default function BillList({ bills, onEdit, onDelete }: BillListProps) {
+export default function BillList({ bills, onEdit, onDelete, filterType }: BillListProps) {
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
+  const filtered = filterType ? bills.filter((b) => b.type === filterType) : bills;
+  const isIncome = filterType === "income";
 
-  if (bills.length === 0) {
+  if (filtered.length === 0) {
     return (
       <div className="text-sm text-gb-fg4 text-center py-8">
-        No bills yet. Add one above.
+        No {isIncome ? "income" : "bills"} yet. Add one above.
       </div>
     );
   }
 
   return (
     <div className="space-y-2">
-      <h2 className="text-lg font-semibold text-gb-fg1">Your Bills</h2>
-      {bills.map((bill) => {
-        const color = getBillColor(bill.id);
+      <h2 className="text-lg font-semibold text-gb-fg1">{isIncome ? "Your Income" : "Your Bills"}</h2>
+      {filtered.map((bill) => {
+        const color = bill.type === "income" ? getIncomeColor() : getBillColor(bill.id);
 
         return (
           <div

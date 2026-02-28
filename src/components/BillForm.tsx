@@ -1,22 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import type { Bill, BillInput, BillFrequency } from "@/lib/types";
+import type { Bill, BillInput, BillFrequency, BillType } from "@/lib/types";
 
 interface BillFormProps {
   onSubmit: (input: BillInput) => Promise<void>;
   editingBill?: Bill | null;
   onCancelEdit?: () => void;
+  defaultType?: BillType;
 }
 
-const EMPTY_FORM: BillInput = {
-  name: "",
-  amount: 0,
-  frequency: "monthly",
-  startDate: "",
-};
+function emptyForm(type: BillType): BillInput {
+  return { name: "", amount: 0, frequency: "monthly", startDate: "", type };
+}
 
-export default function BillForm({ onSubmit, editingBill, onCancelEdit }: BillFormProps) {
+export default function BillForm({ onSubmit, editingBill, onCancelEdit, defaultType = "expense" }: BillFormProps) {
   const [form, setForm] = useState<BillInput>(
     editingBill
       ? {
@@ -24,8 +22,9 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit }: BillFo
           amount: editingBill.amount,
           frequency: editingBill.frequency,
           startDate: editingBill.startDate,
+          type: editingBill.type,
         }
-      : EMPTY_FORM
+      : emptyForm(defaultType)
   );
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -41,7 +40,7 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit }: BillFo
     setSubmitting(true);
     try {
       await onSubmit(form);
-      if (!editingBill) setForm(EMPTY_FORM);
+      if (!editingBill) setForm(emptyForm(defaultType));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -52,7 +51,9 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit }: BillFo
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <h2 className="text-lg font-semibold text-gb-fg1">
-        {editingBill ? "Edit Bill" : "Add Bill"}
+        {editingBill
+          ? form.type === "income" ? "Edit Income" : "Edit Bill"
+          : form.type === "income" ? "Add Income" : "Add Bill"}
       </h2>
 
       <div>
@@ -62,7 +63,7 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit }: BillFo
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           className="w-full rounded-md border border-gb-bg3 bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-blue focus:ring-1 focus:ring-gb-blue outline-none"
-          placeholder="e.g. Netflix, Electricity"
+          placeholder={form.type === "income" ? "e.g. Salary, Freelance" : "e.g. Netflix, Electricity"}
         />
       </div>
 
@@ -113,7 +114,7 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit }: BillFo
           disabled={submitting}
           className="flex-1 rounded-md bg-gb-blue px-4 py-2 text-sm font-medium text-gb-bg0 hover:bg-gb-blue-dim disabled:opacity-50"
         >
-          {submitting ? "Saving..." : editingBill ? "Update" : "Add Bill"}
+          {submitting ? "Saving..." : editingBill ? "Update" : form.type === "income" ? "Add Income" : "Add Bill"}
         </button>
         {editingBill && onCancelEdit && (
           <button

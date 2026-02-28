@@ -43,12 +43,14 @@ export interface ScheduleEntry {
 // ── Bills ──────────────────────────────────────────────────
 
 export type BillFrequency = "once" | "daily" | "weekly" | "biweekly" | "monthly" | "yearly";
+export type BillType = "expense" | "income";
 
 export interface Bill {
   id: number;
   name: string;
   amount: number;
   frequency: BillFrequency;
+  type: BillType;
   startDate: string; // YYYY-MM-DD
   createdAt: string;
 }
@@ -57,6 +59,7 @@ export interface BillInput {
   name: string;
   amount: number;
   frequency: BillFrequency;
+  type: BillType;
   startDate: string;
 }
 

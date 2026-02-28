@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { updateBill, deleteBill, getBillById } from "@/lib/bills";
 import { requireAuth, AuthError } from "@/lib/auth";
-import type { BillInput, BillFrequency } from "@/lib/types";
+import type { BillInput, BillFrequency, BillType } from "@/lib/types";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
 const VALID_FREQUENCIES: BillFrequency[] = ["once", "daily", "weekly", "biweekly", "monthly", "yearly"];
+const VALID_TYPES: BillType[] = ["expense", "income"];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function PUT(request: Request, { params }: RouteParams) {
@@ -37,11 +38,13 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const startDate = body.startDate as string;
     if (!DATE_RE.test(startDate)) errors.push("Invalid start date format");
 
+    const type: BillType = VALID_TYPES.includes(body.type) ? body.type : existing.type;
+
     if (errors.length > 0) {
       return NextResponse.json({ errors }, { status: 400 });
     }
 
-    const input: BillInput = { name, amount, frequency, startDate };
+    const input: BillInput = { name, amount, frequency, startDate, type };
     const bill = await updateBill(id, userId, input);
     return NextResponse.json(bill);
   } catch (e) {

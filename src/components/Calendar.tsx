@@ -20,7 +20,7 @@ import DayOverviewDialog from "./DayOverviewDialog";
 import RangeSummaryDialog from "./RangeSummaryDialog";
 import { getPaymentSchedule } from "@/lib/payments";
 import { getBillSchedule } from "@/lib/bill-schedule";
-import { getLoanColor, getBillColor } from "@/lib/colors";
+import { getLoanColor, getBillColor, getIncomeColor } from "@/lib/colors";
 import type { Loan, Payment, Bill, BillPayment } from "@/lib/types";
 
 interface CalendarProps {
@@ -103,19 +103,20 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
     // Bill schedule: cap at end of current calendar year + 1 year
     const maxDate = new Date(currentMonth.getFullYear() + 1, 11, 31);
     bills.forEach((bill) => {
-      const color = getBillColor(bill.id);
+      const isIncome = bill.type === "income";
+      const color = isIncome ? getIncomeColor() : getBillColor(bill.id);
       const schedule = getBillSchedule(bill, billPayments, maxDate);
 
       for (const entry of schedule) {
         const existing = map.get(entry.date) ?? [];
         existing.push({
-          type: "bill",
+          type: isIncome ? "income" : "bill",
           itemId: bill.id,
           name: bill.name,
           scheduledAmount: entry.scheduledAmount,
           paid: entry.paid,
           paidAmount: entry.paidAmount,
-          canPay: true, // bills are always independently payable
+          canPay: true, // bills/income are always independently payable
           color,
         });
         map.set(entry.date, existing);
@@ -147,6 +148,29 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
       color: p.color,
     });
   };
+
+  // Monthly summary totals
+  const monthSummary = useMemo(() => {
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(currentMonth);
+    const startStr = format(monthStart, "yyyy-MM-dd");
+    const endStr = format(monthEnd, "yyyy-MM-dd");
+
+    let loanTotal = 0;
+    let billTotal = 0;
+    let incomeTotal = 0;
+
+    paymentMap.forEach((dayPayments, dateStr) => {
+      if (dateStr < startStr || dateStr > endStr) return;
+      for (const p of dayPayments) {
+        if (p.type === "loan") loanTotal += p.scheduledAmount;
+        else if (p.type === "bill") billTotal += p.scheduledAmount;
+        else if (p.type === "income") incomeTotal += p.scheduledAmount;
+      }
+    });
+
+    return { loanTotal, billTotal, incomeTotal, net: incomeTotal - loanTotal - billTotal };
+  }, [paymentMap, currentMonth]);
 
   return (
     <div>
@@ -194,6 +218,39 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
           </button>
         </div>
       </div>
+
+      {/* Monthly summary bar */}
+      {view === "month" && (monthSummary.loanTotal > 0 || monthSummary.billTotal > 0 || monthSummary.incomeTotal > 0) && (
+        <div className="flex items-center gap-4 mb-4 px-3 py-2 rounded-md bg-gb-bg1 border border-gb-bg2 text-xs">
+          {monthSummary.loanTotal > 0 && (
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-gb-blue" />
+              <span className="text-gb-fg3">Loans</span>
+              <span className="font-medium text-gb-fg1">₱{monthSummary.loanTotal.toLocaleString()}</span>
+            </span>
+          )}
+          {monthSummary.billTotal > 0 && (
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-gb-orange" />
+              <span className="text-gb-fg3">Bills</span>
+              <span className="font-medium text-gb-fg1">₱{monthSummary.billTotal.toLocaleString()}</span>
+            </span>
+          )}
+          {monthSummary.incomeTotal > 0 && (
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-gb-green" />
+              <span className="text-gb-fg3">Income</span>
+              <span className="font-medium text-gb-fg1">₱{monthSummary.incomeTotal.toLocaleString()}</span>
+            </span>
+          )}
+          <span className="ml-auto flex items-center gap-1">
+            <span className="text-gb-fg4">Net</span>
+            <span className={`font-semibold ${monthSummary.net >= 0 ? "text-gb-green" : "text-gb-red"}`}>
+              {monthSummary.net >= 0 ? "+" : ""}₱{monthSummary.net.toLocaleString()}
+            </span>
+          </span>
+        </div>
+      )}
 
       {view === "month" ? (
         <MonthView

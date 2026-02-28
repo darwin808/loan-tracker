@@ -8,6 +8,7 @@ function rowToBill(row: Row): Bill {
     name: row.name as string,
     amount: row.amount as number,
     frequency: row.frequency as Bill["frequency"],
+    type: (row.type as Bill["type"]) ?? "expense",
     startDate: row.start_date as string,
     createdAt: row.created_at as string,
   };
@@ -34,8 +35,8 @@ export async function getBillById(id: number, userId: number): Promise<Bill | un
 export async function createBill(userId: number, input: BillInput): Promise<Bill> {
   await initDb;
   const result = await db.execute({
-    sql: "INSERT INTO bills (name, amount, frequency, start_date, user_id) VALUES (?, ?, ?, ?, ?)",
-    args: [input.name, input.amount, input.frequency, input.startDate, userId],
+    sql: "INSERT INTO bills (name, amount, frequency, start_date, user_id, type) VALUES (?, ?, ?, ?, ?, ?)",
+    args: [input.name, input.amount, input.frequency, input.startDate, userId, input.type],
   });
   return (await getBillById(Number(result.lastInsertRowid), userId))!;
 }
@@ -43,8 +44,8 @@ export async function createBill(userId: number, input: BillInput): Promise<Bill
 export async function updateBill(id: number, userId: number, input: BillInput): Promise<Bill | undefined> {
   await initDb;
   const result = await db.execute({
-    sql: "UPDATE bills SET name = ?, amount = ?, frequency = ?, start_date = ? WHERE id = ? AND user_id = ?",
-    args: [input.name, input.amount, input.frequency, input.startDate, id, userId],
+    sql: "UPDATE bills SET name = ?, amount = ?, frequency = ?, start_date = ?, type = ? WHERE id = ? AND user_id = ?",
+    args: [input.name, input.amount, input.frequency, input.startDate, input.type, id, userId],
   });
   if (result.rowsAffected === 0) return undefined;
   return (await getBillById(id, userId))!;

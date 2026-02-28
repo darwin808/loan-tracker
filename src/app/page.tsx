@@ -19,7 +19,7 @@ export default function Home() {
     useBills();
   const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
   const [editingBill, setEditingBill] = useState<Bill | null>(null);
-  const [sidebarTab, setSidebarTab] = useState<"loans" | "bills">("loans");
+  const [sidebarTab, setSidebarTab] = useState<"loans" | "bills" | "income">("loans");
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -112,9 +112,19 @@ export default function Home() {
               >
                 Bills
               </button>
+              <button
+                onClick={() => setSidebarTab("income")}
+                className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                  sidebarTab === "income"
+                    ? "bg-gb-green text-gb-bg0"
+                    : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
+                }`}
+              >
+                Income
+              </button>
             </div>
 
-            {sidebarTab === "loans" ? (
+            {sidebarTab === "loans" && (
               <>
                 <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
                   <LoanForm onSubmit={handleSubmit} />
@@ -132,7 +142,8 @@ export default function Home() {
                   )}
                 </div>
               </>
-            ) : (
+            )}
+            {sidebarTab === "bills" && (
               <>
                 <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
                   <BillForm onSubmit={handleBillSubmit} />
@@ -145,6 +156,26 @@ export default function Home() {
                       bills={bills}
                       onEdit={setEditingBill}
                       onDelete={handleBillDelete}
+                      filterType="expense"
+                    />
+                  )}
+                </div>
+              </>
+            )}
+            {sidebarTab === "income" && (
+              <>
+                <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
+                  <BillForm onSubmit={handleBillSubmit} defaultType="income" />
+                </div>
+                <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
+                  {billsLoading ? (
+                    <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
+                  ) : (
+                    <BillList
+                      bills={bills}
+                      onEdit={setEditingBill}
+                      onDelete={handleBillDelete}
+                      filterType="income"
                     />
                   )}
                 </div>
@@ -183,7 +214,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Edit Bill Modal */}
+      {/* Edit Bill/Income Modal */}
       {editingBill && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setEditingBill(null)}>
           <div className="absolute inset-0 bg-gb-fg0/30" />
@@ -192,6 +223,7 @@ export default function Home() {
               key={editingBill.id}
               onSubmit={handleBillSubmit}
               editingBill={editingBill}
+              defaultType={editingBill.type}
               onCancelEdit={() => setEditingBill(null)}
             />
           </div>

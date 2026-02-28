@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { LoanColor } from "@/lib/colors";
 
 export interface PaymentDialogData {
-  type: "loan" | "bill";
+  type: "loan" | "bill" | "income";
   itemId: number;
   name: string;
   date: string;
@@ -24,7 +24,7 @@ interface PaymentDialogProps {
 }
 
 export default function PaymentDialog({ data, onRecord, onUndo, onRecordBillPayment, onUndoBillPayment, onClose }: PaymentDialogProps) {
-  const isBill = data.type === "bill";
+  const isBill = data.type === "bill" || data.type === "income";
   const [amount, setAmount] = useState(data.paidAmount ?? data.scheduledAmount);
   const [submitting, setSubmitting] = useState(false);
 
