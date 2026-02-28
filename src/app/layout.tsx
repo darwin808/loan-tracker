@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "Track loans, bills, income, and savings. Free personal finance tracker.",
   },
   icons: {
-    icon: "/favicon.svg",
+    icon: "/favicon.ico",
   },
 };
 

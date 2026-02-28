@@ -116,15 +116,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t-2 border-gb-fg0 py-6 px-4 bg-gb-bg0">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <span className="text-sm font-bold text-gb-fg0">FinTrack</span>
-          <Link href="/login" className="text-sm text-gb-fg3 hover:text-gb-fg0 font-medium">
-            Sign in
-          </Link>
-        </div>
-      </footer>
     </div>
   );
 }
