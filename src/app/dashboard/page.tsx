@@ -21,7 +21,15 @@ export default function DashboardPage() {
   const { accounts: savingsAccounts } = useSavings();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [user, setUser] = useState<User | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const { fmt } = useCurrency();
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     fetch("/api/auth/me").then((res) => {
@@ -154,28 +162,24 @@ export default function DashboardPage() {
 
       {/* Donut Chart (1/2) + Calendar (1/2) */}
       <div className="flex-1 min-h-0 px-4 md:px-6 pb-4 md:pb-6">
-        <div className="h-full grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="h-full flex flex-col lg:grid lg:grid-cols-3 gap-4 md:gap-6">
           {/* Donut Chart */}
-          <div className="bg-gb-bg0 nb-card rounded-sm p-4 md:p-6 overflow-y-auto flex flex-col items-center justify-center">
-            {hasChartData ? (
-              <>
-                <div className="text-sm font-medium text-gb-fg4 text-center mb-3">
-                  {format(currentMonth, "MMMM yyyy")}
-                </div>
-                <DonutChart
-                  loanTotal={monthSummary.loanTotal}
-                  billTotal={monthSummary.billTotal}
-                  incomeTotal={monthSummary.incomeTotal}
-                  size={320}
-                />
-              </>
-            ) : (
-              <div className="text-sm text-gb-fg4 text-center">No data for this month</div>
-            )}
-          </div>
+          {hasChartData && (
+            <div className="bg-gb-bg0 nb-card rounded-sm p-3 md:p-6 shrink-0 lg:shrink lg:overflow-y-auto flex flex-col items-center justify-center">
+              <div className="text-xs md:text-sm font-medium text-gb-fg4 text-center mb-1 md:mb-3">
+                {format(currentMonth, "MMMM yyyy")}
+              </div>
+              <DonutChart
+                loanTotal={monthSummary.loanTotal}
+                billTotal={monthSummary.billTotal}
+                incomeTotal={monthSummary.incomeTotal}
+                size={isMobile ? 140 : 320}
+              />
+            </div>
+          )}
 
           {/* Calendar */}
-          <div className="lg:col-span-2 bg-gb-bg0 nb-card rounded-sm p-4 md:p-6 overflow-y-auto">
+          <div className="lg:col-span-2 bg-gb-bg0 nb-card rounded-sm p-4 md:p-6 flex-1 min-h-0 overflow-y-auto">
             <Calendar
               loans={loans}
               payments={payments}
