@@ -86,10 +86,12 @@ async function runMigrations() {
 
   // Add email column to users
   try {
-    await db.execute("ALTER TABLE users ADD COLUMN email TEXT UNIQUE");
+    await db.execute("ALTER TABLE users ADD COLUMN email TEXT");
   } catch {
     // Column already exists — ignore
   }
+  // Unique index on email (ALTER TABLE can't add UNIQUE constraint in SQLite)
+  await db.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)");
 
   // OAuth accounts table
   await db.execute(
