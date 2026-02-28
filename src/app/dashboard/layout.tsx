@@ -4,20 +4,19 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Landmark, Receipt, TrendingUp, PiggyBank, CalendarDays, LogOut, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { LayoutDashboard, Landmark, Receipt, TrendingUp, PiggyBank, LogOut, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 const NAV_ITEMS = [
-  { key: "loans", icon: Landmark, label: "Loans", color: "bg-gb-blue" },
-  { key: "bills", icon: Receipt, label: "Bills", color: "bg-gb-orange" },
-  { key: "income", icon: TrendingUp, label: "Income", color: "bg-gb-green" },
-  { key: "savings", icon: PiggyBank, label: "Savings", color: "bg-gb-purple" },
-  { key: "calendar", icon: CalendarDays, label: "Calendar", color: "bg-gb-yellow" },
+  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", color: "bg-gb-yellow" },
+  { href: "/dashboard/loans", icon: Landmark, label: "Loans", color: "bg-gb-blue" },
+  { href: "/dashboard/bills", icon: Receipt, label: "Bills", color: "bg-gb-orange" },
+  { href: "/dashboard/income", icon: TrendingUp, label: "Income", color: "bg-gb-green" },
+  { href: "/dashboard/savings", icon: PiggyBank, label: "Savings", color: "bg-gb-purple" },
 ] as const;
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const activeSection = pathname.split("/").pop() || "loans";
 
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -41,7 +40,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           collapsed ? "w-[60px]" : "w-[180px]"
         }`}
       >
-        {/* Logo + Collapse toggle */}
+        {/* Logo */}
         <div className={`mb-6 flex items-center gap-2 ${collapsed ? "" : "w-full px-4"}`}>
           <Image src="/favicon-32x32.png" alt="FinTrack" width={28} height={28} />
           {!collapsed && <span className="text-sm font-bold text-gb-bg0 truncate">FinTrack</span>}
@@ -49,12 +48,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Nav Links */}
         <div className={`flex flex-col gap-1 flex-1 ${collapsed ? "items-center" : "w-full px-2"}`}>
-          {NAV_ITEMS.map(({ key, icon: Icon, label, color }) => {
-            const isActive = activeSection === key;
+          {NAV_ITEMS.map(({ href, icon: Icon, label, color }) => {
+            const isActive = pathname === href;
             return (
               <Link
-                key={key}
-                href={`/dashboard/${key}`}
+                key={href}
+                href={href}
                 title={collapsed ? label : undefined}
                 className={`flex items-center gap-3 rounded-md transition-colors ${
                   collapsed ? "w-10 h-10 justify-center" : "px-3 py-2"
