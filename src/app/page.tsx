@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Landmark, Receipt, PiggyBank, CalendarDays, ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { Landmark, Receipt, PiggyBank, CalendarDays, ArrowRight, Heart } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -93,6 +94,37 @@ export default function LandingPage() {
                 <p className="text-sm text-gb-fg2">{desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Support */}
+      <section className="py-16 px-4">
+        <div className="max-w-md mx-auto text-center">
+          <div className="nb-card rounded-sm bg-gb-bg0 p-8">
+            <Heart size={32} className="text-gb-red mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gb-fg0 mb-2">
+              Support FinTrack
+            </h2>
+            <p className="text-sm text-gb-fg2 mb-6">
+              FinTrack is free and maintained by a solo developer. If it helps you, consider buying me a coffee!
+            </p>
+            <Image
+              src="/qr.jpg"
+              alt="Donate via QR code"
+              width={200}
+              height={200}
+              className="mx-auto mb-6 border-2 border-gb-fg0 rounded-sm"
+            />
+            <a
+              href="https://ko-fi.com/darwinapolinario"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nb-btn rounded-sm bg-gb-red px-6 py-3 text-base font-bold text-gb-bg0 hover:nb-btn-press inline-flex items-center gap-2"
+            >
+              <Heart size={18} />
+              Buy me a coffee
+            </a>
           </div>
         </div>
       </section>

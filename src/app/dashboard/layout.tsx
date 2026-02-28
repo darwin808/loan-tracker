@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { LayoutDashboard, Landmark, Receipt, TrendingUp, PiggyBank, LogOut, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { LayoutDashboard, Landmark, Receipt, TrendingUp, PiggyBank, LogOut, ChevronsLeft, ChevronsRight, Heart } from "lucide-react";
 import { CurrencyProvider, useCurrency } from "@/lib/currency";
 
 const NAV_ITEMS = [
@@ -67,7 +67,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   return (
-    <div className="h-screen bg-gb-bg1 flex flex-col md:flex-row overflow-hidden">
+    <div className="h-dvh bg-gb-bg1 flex flex-col md:flex-row overflow-hidden">
       {/* Desktop Sidebar — hidden on mobile */}
       <nav
         className={`hidden md:flex bg-gb-fg0 flex-col items-center py-4 shrink-0 transition-all duration-200 ${
@@ -104,6 +104,18 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 
         <div className={`flex flex-col gap-1 ${collapsed ? "items-center" : "w-full px-2"}`}>
           <CurrencyToggle collapsed={collapsed} />
+          <a
+            href="https://ko-fi.com/darwinapolinario"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Support FinTrack"
+            className={`flex items-center gap-3 rounded-md text-gb-bg3 hover:text-gb-red transition-colors ${
+              collapsed ? "w-10 h-10 justify-center" : "px-3 py-2"
+            }`}
+          >
+            <Heart size={20} />
+            {!collapsed && <span className="text-sm font-medium">Donate</span>}
+          </a>
           <button
             onClick={() => setCollapsed((c) => !c)}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -128,12 +140,12 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
       </nav>
 
       {/* Main Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 pb-14 md:pb-0">
         {children}
       </div>
 
       {/* Mobile Bottom Nav — hidden on desktop */}
-      <nav className="md:hidden bg-gb-fg0 border-t-2 border-gb-fg1 shrink-0 safe-bottom">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-gb-fg0 border-t-2 border-gb-fg1 safe-bottom">
         <div className="flex items-stretch justify-around px-1 py-1">
           {NAV_ITEMS.map(({ href, icon: Icon, label, color }) => {
             const isActive = pathname === href;
@@ -153,6 +165,15 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
             );
           })}
           <MobileCurrencyToggle />
+          <a
+            href="https://ko-fi.com/darwinapolinario"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center justify-center gap-0.5 text-gb-bg3"
+          >
+            <Heart size={18} />
+            <span className="text-[10px] font-medium">Donate</span>
+          </a>
         </div>
       </nav>
     </div>

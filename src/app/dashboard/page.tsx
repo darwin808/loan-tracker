@@ -107,91 +107,94 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Summary Cards */}
-      <div className="px-4 md:px-6 py-3 md:py-4 shrink-0">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
-          <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="bg-gb-blue p-1.5 rounded-sm">
-                <Landmark size={16} className="text-gb-bg0" />
+      {/* Content — scrolls as one unit on mobile, constrained on desktop */}
+      <div className="flex-1 min-h-0 overflow-y-auto md:overflow-hidden md:flex md:flex-col">
+        {/* Summary Cards */}
+        <div className="px-4 md:px-6 py-3 md:py-4 md:shrink-0">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
+            <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-gb-blue p-1.5 rounded-sm">
+                  <Landmark size={16} className="text-gb-bg0" />
+                </div>
+                <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Total Loans</span>
               </div>
-              <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Total Loans</span>
+              <div className="text-2xl font-bold text-gb-blue-dim">
+                {fmt(totalLoans)}
+              </div>
             </div>
-            <div className="text-2xl font-bold text-gb-blue-dim">
-              {fmt(totalLoans)}
-            </div>
-          </div>
 
-          <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="bg-gb-orange p-1.5 rounded-sm">
-                <Receipt size={16} className="text-gb-bg0" />
+            <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-gb-orange p-1.5 rounded-sm">
+                  <Receipt size={16} className="text-gb-bg0" />
+                </div>
+                <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Bills This Month</span>
               </div>
-              <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Bills This Month</span>
+              <div className="text-2xl font-bold text-gb-orange-dim">
+                {fmt(monthSummary.billTotal)}
+              </div>
             </div>
-            <div className="text-2xl font-bold text-gb-orange-dim">
-              {fmt(monthSummary.billTotal)}
-            </div>
-          </div>
 
-          <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="bg-gb-purple p-1.5 rounded-sm">
-                <PiggyBank size={16} className="text-gb-bg0" />
+            <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-gb-purple p-1.5 rounded-sm">
+                  <PiggyBank size={16} className="text-gb-bg0" />
+                </div>
+                <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Total Savings</span>
               </div>
-              <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Total Savings</span>
+              <div className="text-2xl font-bold text-gb-purple-dim">
+                {fmt(totalSavings)}
+              </div>
             </div>
-            <div className="text-2xl font-bold text-gb-purple-dim">
-              {fmt(totalSavings)}
-            </div>
-          </div>
 
-          <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className={`${netThisMonth >= 0 ? "bg-gb-green" : "bg-gb-red"} p-1.5 rounded-sm`}>
-                <TrendingUp size={16} className="text-gb-bg0" />
+            <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`${netThisMonth >= 0 ? "bg-gb-green" : "bg-gb-red"} p-1.5 rounded-sm`}>
+                  <TrendingUp size={16} className="text-gb-bg0" />
+                </div>
+                <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Net This Month</span>
               </div>
-              <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Net This Month</span>
-            </div>
-            <div className={`text-2xl font-bold ${netThisMonth >= 0 ? "text-gb-green-dim" : "text-gb-red-dim"}`}>
-              {netThisMonth >= 0 ? "+" : ""}{fmt(netThisMonth)}
+              <div className={`text-2xl font-bold ${netThisMonth >= 0 ? "text-gb-green-dim" : "text-gb-red-dim"}`}>
+                {netThisMonth >= 0 ? "+" : ""}{fmt(netThisMonth)}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Donut Chart (1/2) + Calendar (1/2) */}
-      <div className="flex-1 min-h-0 px-4 md:px-6 pb-4 md:pb-6">
-        <div className="h-full flex flex-col lg:grid lg:grid-cols-3 gap-4 md:gap-6">
-          {/* Donut Chart */}
-          {hasChartData && (
-            <div className="bg-gb-bg0 nb-card rounded-sm p-3 md:p-6 shrink-0 lg:shrink lg:overflow-y-auto flex flex-col items-center justify-center">
-              <div className="text-xs md:text-sm font-medium text-gb-fg4 text-center mb-1 md:mb-3">
-                {format(currentMonth, "MMMM yyyy")}
+        {/* Donut Chart + Calendar */}
+        <div className="px-4 md:px-6 pb-4 md:pb-6 md:flex-1 md:min-h-0">
+          <div className="md:h-full flex flex-col lg:grid lg:grid-cols-3 gap-3 md:gap-6">
+            {/* Donut Chart */}
+            {hasChartData && (
+              <div className="bg-gb-bg0 nb-card rounded-sm p-3 md:p-6 shrink-0 lg:shrink lg:overflow-y-auto flex flex-col items-center justify-center">
+                <div className="text-xs md:text-sm font-medium text-gb-fg4 text-center mb-1 md:mb-3">
+                  {format(currentMonth, "MMMM yyyy")}
+                </div>
+                <DonutChart
+                  loanTotal={monthSummary.loanTotal}
+                  billTotal={monthSummary.billTotal}
+                  incomeTotal={monthSummary.incomeTotal}
+                  size={isMobile ? 140 : 320}
+                />
               </div>
-              <DonutChart
-                loanTotal={monthSummary.loanTotal}
-                billTotal={monthSummary.billTotal}
-                incomeTotal={monthSummary.incomeTotal}
-                size={isMobile ? 140 : 320}
+            )}
+
+            {/* Calendar */}
+            <div className="lg:col-span-2 bg-gb-bg0 nb-card rounded-sm p-3 md:p-6 md:flex-1 md:min-h-0 md:overflow-y-auto">
+              <Calendar
+                loans={loans}
+                payments={payments}
+                bills={bills}
+                billPayments={billPayments}
+                currentMonth={currentMonth}
+                onMonthChange={setCurrentMonth}
+                onRecordPayment={recordPayment}
+                onUndoPayment={undoPayment}
+                onRecordBillPayment={recordBillPayment}
+                onUndoBillPayment={undoBillPayment}
               />
             </div>
-          )}
-
-          {/* Calendar */}
-          <div className="lg:col-span-2 bg-gb-bg0 nb-card rounded-sm p-4 md:p-6 flex-1 min-h-0 overflow-y-auto">
-            <Calendar
-              loans={loans}
-              payments={payments}
-              bills={bills}
-              billPayments={billPayments}
-              currentMonth={currentMonth}
-              onMonthChange={setCurrentMonth}
-              onRecordPayment={recordPayment}
-              onUndoPayment={undoPayment}
-              onRecordBillPayment={recordBillPayment}
-              onUndoBillPayment={undoBillPayment}
-            />
           </div>
         </div>
       </div>
