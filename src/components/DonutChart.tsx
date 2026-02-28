@@ -12,8 +12,6 @@ interface DonutChartProps {
   size?: number;
 }
 
-const CATEGORY_COLORS = [CHART_COLORS.loan, CHART_COLORS.bill, CHART_COLORS.income];
-
 function sectorShape(props: PieSectorShapeProps) {
   const { isActive, cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
   return (
@@ -29,18 +27,29 @@ function sectorShape(props: PieSectorShapeProps) {
   );
 }
 
+const SLICE_COLORS: Record<string, string> = {
+  Loans: CHART_COLORS.loan,
+  Bills: CHART_COLORS.bill,
+  Remaining: CHART_COLORS.income,
+};
+
 export default function DonutChart({ loanTotal, billTotal, incomeTotal, size = 160 }: DonutChartProps) {
   const expenseTotal = loanTotal + billTotal;
   const net = incomeTotal - expenseTotal;
-  const total = loanTotal + billTotal + incomeTotal;
 
-  if (total === 0) return null;
+  // Nothing to show if no income and no expenses
+  if (incomeTotal === 0 && expenseTotal === 0) return null;
 
+  // Full circle = income (or total expenses if overspent)
+  // Slices: Loans, Bills, Remaining (net > 0)
+  // When overspent (net < 0), only show loans + bills filling the whole circle
   const data = [
     { name: "Loans", value: loanTotal },
     { name: "Bills", value: billTotal },
-    { name: "Income", value: incomeTotal },
+    ...(net > 0 ? [{ name: "Remaining", value: net }] : []),
   ].filter((d) => d.value > 0);
+
+  if (data.length === 0) return null;
 
   return (
     <div className="flex flex-col items-center gap-3 py-3">
@@ -60,10 +69,9 @@ export default function DonutChart({ loanTotal, billTotal, incomeTotal, size = 1
               endAngle={-270}
               shape={sectorShape}
             >
-              {data.map((entry) => {
-                const colorKey = entry.name === "Loans" ? 0 : entry.name === "Bills" ? 1 : 2;
-                return <Cell key={entry.name} fill={CATEGORY_COLORS[colorKey]} />;
-              })}
+              {data.map((entry) => (
+                <Cell key={entry.name} fill={SLICE_COLORS[entry.name]} />
+              ))}
             </Pie>
             <Tooltip
               content={({ payload }) => {
@@ -115,11 +123,11 @@ export default function DonutChart({ loanTotal, billTotal, incomeTotal, size = 1
             <span className="font-medium text-gb-fg1">₱{billTotal.toLocaleString()}</span>
           </span>
         )}
-        {incomeTotal > 0 && (
+        {net > 0 && (
           <span className="flex items-center gap-1">
             <span className="h-2 w-2 rounded-full bg-gb-green" />
-            <span className="text-gb-fg3">Income</span>
-            <span className="font-medium text-gb-fg1">₱{incomeTotal.toLocaleString()}</span>
+            <span className="text-gb-fg3">Left</span>
+            <span className="font-medium text-gb-fg1">₱{net.toLocaleString()}</span>
           </span>
         )}
       </div>

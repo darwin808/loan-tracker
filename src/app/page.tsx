@@ -25,6 +25,7 @@ export default function Home() {
   const [editingBill, setEditingBill] = useState<Bill | null>(null);
   const [sidebarTab, setSidebarTab] = useState<"loans" | "bills" | "income">("loans");
   const [showAddModal, setShowAddModal] = useState<"loan" | "bill" | "income" | null>(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -74,14 +75,13 @@ export default function Home() {
     if (editingBill?.id === id) setEditingBill(null);
   };
 
-  // Monthly summary for donut chart in sidebar
+  // Monthly summary for donut chart in sidebar — follows calendar month
   const monthSummary = useMemo(() => {
-    const now = new Date();
-    const mStart = startOfMonth(now);
-    const mEnd = endOfMonth(now);
+    const mStart = startOfMonth(currentMonth);
+    const mEnd = endOfMonth(currentMonth);
     const startStr = format(mStart, "yyyy-MM-dd");
     const endStr = format(mEnd, "yyyy-MM-dd");
-    const maxDate = new Date(now.getFullYear() + 1, 11, 31);
+    const maxDate = new Date(currentMonth.getFullYear() + 1, 11, 31);
 
     let loanTotal = 0;
     let billTotal = 0;
@@ -107,7 +107,7 @@ export default function Home() {
     });
 
     return { loanTotal, billTotal, incomeTotal };
-  }, [loans, payments, bills, billPayments]);
+  }, [loans, payments, bills, billPayments, currentMonth]);
 
   const hasChartData = monthSummary.loanTotal > 0 || monthSummary.billTotal > 0 || monthSummary.incomeTotal > 0;
 
@@ -242,7 +242,7 @@ export default function Home() {
             {hasChartData && (
               <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
                 <div className="text-xs font-medium text-gb-fg4 text-center mb-1">
-                  {format(new Date(), "MMMM yyyy")}
+                  {format(currentMonth, "MMMM yyyy")}
                 </div>
                 <DonutChart
                   loanTotal={monthSummary.loanTotal}
@@ -261,6 +261,8 @@ export default function Home() {
               payments={payments}
               bills={bills}
               billPayments={billPayments}
+              currentMonth={currentMonth}
+              onMonthChange={setCurrentMonth}
               onRecordPayment={recordPayment}
               onUndoPayment={undoPayment}
               onRecordBillPayment={recordBillPayment}

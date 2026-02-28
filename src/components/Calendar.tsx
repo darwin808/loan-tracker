@@ -28,6 +28,8 @@ interface CalendarProps {
   payments: Payment[];
   bills: Bill[];
   billPayments: BillPayment[];
+  currentMonth: Date;
+  onMonthChange: (month: Date) => void;
   onRecordPayment: (loanId: number, date: string, amount: number) => Promise<void>;
   onUndoPayment: (loanId: number, date: string) => Promise<void>;
   onRecordBillPayment: (billId: number, date: string, amount: number) => Promise<void>;
@@ -39,8 +41,7 @@ type ViewMode = "month" | "year";
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const WEEKDAYS_SHORT = ["S", "M", "T", "W", "T", "F", "S"];
 
-export default function Calendar({ loans, payments, bills, billPayments, onRecordPayment, onUndoPayment, onRecordBillPayment, onUndoBillPayment }: CalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+export default function Calendar({ loans, payments, bills, billPayments, currentMonth, onMonthChange: setCurrentMonth, onRecordPayment, onUndoPayment, onRecordBillPayment, onUndoBillPayment }: CalendarProps) {
   const [view, setView] = useState<ViewMode>("month");
   const [dialog, setDialog] = useState<PaymentDialogData | null>(null);
   const [dayOverview, setDayOverview] = useState<{ payments: DayPayment[]; date: string } | null>(null);
@@ -155,10 +156,10 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() =>
-            setCurrentMonth((m) =>
+            setCurrentMonth(
               view === "year"
-                ? new Date(m.getFullYear() - 1, m.getMonth())
-                : subMonths(m, 1)
+                ? new Date(currentMonth.getFullYear() - 1, currentMonth.getMonth())
+                : subMonths(currentMonth, 1)
             )
           }
           className="px-3 py-1.5 text-sm rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2"
@@ -183,10 +184,10 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
           </button>
           <button
             onClick={() =>
-              setCurrentMonth((m) =>
+              setCurrentMonth(
                 view === "year"
-                  ? new Date(m.getFullYear() + 1, m.getMonth())
-                  : addMonths(m, 1)
+                  ? new Date(currentMonth.getFullYear() + 1, currentMonth.getMonth())
+                  : addMonths(currentMonth, 1)
               )
             }
             className="px-3 py-1.5 text-sm rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2"
