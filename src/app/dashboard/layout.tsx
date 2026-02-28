@@ -72,8 +72,19 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
     const onStorage = (e: StorageEvent) => {
       if (e.key === "logout") router.push("/login");
     };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        fetch("/api/auth/me").then((res) => {
+          if (res.status === 401) router.push("/login");
+        });
+      }
+    };
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [router]);
 
   return (
