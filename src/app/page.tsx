@@ -19,6 +19,7 @@ export default function Home() {
     useBills();
   const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
   const [editingBill, setEditingBill] = useState<Bill | null>(null);
+  const [sidebarTab, setSidebarTab] = useState<"loans" | "bills">("loans");
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -88,36 +89,67 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
-          <div className="w-full lg:w-80 shrink-0 space-y-6">
-            <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
-              <LoanForm onSubmit={handleSubmit} />
+          <div className="w-full lg:w-80 shrink-0 space-y-4">
+            {/* Tab toggle */}
+            <div className="flex rounded-lg border border-gb-bg3 overflow-hidden">
+              <button
+                onClick={() => setSidebarTab("loans")}
+                className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                  sidebarTab === "loans"
+                    ? "bg-gb-blue text-gb-bg0"
+                    : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
+                }`}
+              >
+                Loans
+              </button>
+              <button
+                onClick={() => setSidebarTab("bills")}
+                className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                  sidebarTab === "bills"
+                    ? "bg-gb-orange text-gb-bg0"
+                    : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
+                }`}
+              >
+                Bills
+              </button>
             </div>
-            <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
-              {loading ? (
-                <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
-              ) : (
-                <LoanList
-                  loans={loans}
-                  payments={payments}
-                  onEdit={setEditingLoan}
-                  onDelete={handleDelete}
-                />
-              )}
-            </div>
-            <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
-              <BillForm onSubmit={handleBillSubmit} />
-            </div>
-            <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
-              {billsLoading ? (
-                <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
-              ) : (
-                <BillList
-                  bills={bills}
-                  onEdit={setEditingBill}
-                  onDelete={handleBillDelete}
-                />
-              )}
-            </div>
+
+            {sidebarTab === "loans" ? (
+              <>
+                <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
+                  <LoanForm onSubmit={handleSubmit} />
+                </div>
+                <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
+                  {loading ? (
+                    <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
+                  ) : (
+                    <LoanList
+                      loans={loans}
+                      payments={payments}
+                      onEdit={setEditingLoan}
+                      onDelete={handleDelete}
+                    />
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
+                  <BillForm onSubmit={handleBillSubmit} />
+                </div>
+                <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
+                  {billsLoading ? (
+                    <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
+                  ) : (
+                    <BillList
+                      bills={bills}
+                      onEdit={setEditingBill}
+                      onDelete={handleBillDelete}
+                    />
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Calendar */}
