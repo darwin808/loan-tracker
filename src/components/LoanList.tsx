@@ -11,10 +11,10 @@ interface LoanListProps {
   onDelete: (id: number) => void;
 }
 
-const FREQUENCY_LABELS: Record<string, string> = {
-  daily: "Daily",
-  weekly: "Weekly",
-  monthly: "Monthly",
+const RATE_SUFFIX: Record<string, string> = {
+  daily: "/day",
+  weekly: "/wk",
+  monthly: "/mo",
 };
 
 export default function LoanList({ loans, payments, onEdit, onDelete }: LoanListProps) {
@@ -44,55 +44,50 @@ export default function LoanList({ loans, payments, onEdit, onDelete }: LoanList
         const paid = getTotalPaid(loan, payments);
         const remaining = Math.max(0, Math.round((loan.amount - paid) * 100) / 100);
         const paidCount = schedule.filter((e) => e.paid).length;
+        const progress = Math.min(100, (paid / loan.amount) * 100);
 
         return (
           <div
             key={loan.id}
-            className="rounded-md border border-gb-bg3 bg-gb-bg0 p-3"
+            className={`rounded-md border-l-4 ${color.border} bg-gb-bg0 shadow-sm`}
           >
-            <div className="flex items-center gap-3">
-              <span className={`h-3 w-3 rounded-full shrink-0 ${color.dot}`} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-gb-fg1 text-sm truncate">
-                    {loan.name}
-                  </span>
-                  <span className={`text-xs px-1.5 py-0.5 rounded ${color.bg} ${color.text}`}>
-                    {FREQUENCY_LABELS[loan.frequency]}
-                  </span>
+            <div className="px-3 py-2.5">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="font-medium text-gb-fg0 text-sm">{loan.name}</span>
+                <span className="font-semibold text-gb-fg1 text-sm">
+                  ₱{loan.paymentAmount.toLocaleString()}{RATE_SUFFIX[loan.frequency]}
+                </span>
+              </div>
+              <div className="mb-2">
+                <div className="flex justify-between text-xs text-gb-fg4 mb-1">
+                  <span>{paidCount}/{schedule.length} paid</span>
+                  <span>₱{remaining.toLocaleString()} left</span>
                 </div>
-                <div className="text-xs text-gb-fg4">
-                  ₱{loan.paymentAmount.toLocaleString()}/{loan.frequency === "daily" ? "day" : loan.frequency === "weekly" ? "wk" : "mo"}
-                  &middot; {schedule.length} payments
-                  &middot; {loan.startDate} → {endDate ?? "—"}
+                <div className="h-1.5 rounded-full bg-gb-bg2 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${color.dot}`}
+                    style={{ width: `${progress}%` }}
+                  />
                 </div>
               </div>
-              <div className="flex gap-1 shrink-0">
-                <button
-                  onClick={() => onEdit(loan)}
-                  className="text-xs text-gb-fg4 hover:text-gb-blue px-2 py-1"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => onDelete(loan.id)}
-                  className="text-xs text-gb-fg4 hover:text-gb-red px-2 py-1"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-            {/* Progress bar */}
-            <div className="mt-2">
-              <div className="flex justify-between text-xs text-gb-fg4 mb-1">
-                <span>{paidCount} of {schedule.length} paid</span>
-                <span>₱{remaining.toLocaleString()} remaining</span>
-              </div>
-              <div className="h-1.5 rounded-full bg-gb-bg2 overflow-hidden">
-                <div
-                  className={`h-full rounded-full ${color.dot}`}
-                  style={{ width: `${Math.min(100, (paid / loan.amount) * 100)}%` }}
-                />
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gb-fg4">
+                  {loan.startDate} → {endDate ?? "—"}
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => onEdit(loan)}
+                    className="text-[11px] text-gb-fg4 hover:text-gb-blue"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(loan.id)}
+                    className="text-[11px] text-gb-fg4 hover:text-gb-red"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -16,6 +16,13 @@ const FREQUENCY_LABELS: Record<string, string> = {
   yearly: "Yearly",
 };
 
+const RATE_SUFFIX: Record<string, string> = {
+  weekly: "/wk",
+  biweekly: "/2wk",
+  monthly: "/mo",
+  yearly: "/yr",
+};
+
 export default function BillList({ bills, onEdit, onDelete }: BillListProps) {
   if (bills.length === 0) {
     return (
@@ -34,38 +41,39 @@ export default function BillList({ bills, onEdit, onDelete }: BillListProps) {
         return (
           <div
             key={bill.id}
-            className="rounded-md border border-gb-bg3 bg-gb-bg0 p-3 space-y-1"
+            className={`rounded-md border-l-4 ${color.border} bg-gb-bg0 shadow-sm`}
           >
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className={`h-3 w-3 rounded-full shrink-0 ${color.dot}`} />
-                <span className="font-medium text-gb-fg1 text-sm break-words">
-                  {bill.name}
+            <div className="px-3 py-2.5">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="font-medium text-gb-fg0 text-sm">{bill.name}</span>
+                <span className="font-semibold text-gb-fg1 text-sm">
+                  ₱{bill.amount.toLocaleString()}
                 </span>
               </div>
-              <div className="flex gap-1 shrink-0">
-                <button
-                  onClick={() => onEdit(bill)}
-                  className="text-xs text-gb-fg4 hover:text-gb-blue px-2 py-1"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => onDelete(bill.id)}
-                  className="text-xs text-gb-fg4 hover:text-gb-red px-2 py-1"
-                >
-                  Delete
-                </button>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={`text-[11px] px-1.5 py-0.5 rounded font-medium ${color.bg} ${color.text}`}>
+                    {FREQUENCY_LABELS[bill.frequency]}
+                  </span>
+                  <span className="text-xs text-gb-fg4">
+                    {RATE_SUFFIX[bill.frequency]} &middot; from {bill.startDate}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => onEdit(bill)}
+                    className="text-[11px] text-gb-fg4 hover:text-gb-blue"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(bill.id)}
+                    className="text-[11px] text-gb-fg4 hover:text-gb-red"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2 pl-5 text-xs text-gb-fg4">
-              <span className={`px-1.5 py-0.5 rounded ${color.bg} ${color.text}`}>
-                {FREQUENCY_LABELS[bill.frequency]}
-              </span>
-              <span>
-                ₱{bill.amount.toLocaleString()}/{bill.frequency === "yearly" ? "yr" : bill.frequency === "monthly" ? "mo" : bill.frequency === "biweekly" ? "2wk" : "wk"}
-              </span>
-              <span>&middot; from {bill.startDate}</span>
             </div>
           </div>
         );
