@@ -3,16 +3,22 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useLoans } from "@/hooks/useLoans";
+import { useBills } from "@/hooks/useBills";
 import LoanForm from "@/components/LoanForm";
 import LoanList from "@/components/LoanList";
+import BillForm from "@/components/BillForm";
+import BillList from "@/components/BillList";
 import Calendar from "@/components/Calendar";
-import type { Loan, LoanInput, User } from "@/lib/types";
+import type { Loan, LoanInput, Bill, BillInput, User } from "@/lib/types";
 
 export default function Home() {
   const router = useRouter();
   const { loans, payments, loading, addLoan, editLoan, removeLoan, recordPayment, undoPayment } =
     useLoans();
+  const { bills, billPayments, loading: billsLoading, addBill, editBill, removeBill, recordBillPayment, undoBillPayment } =
+    useBills();
   const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
+  const [editingBill, setEditingBill] = useState<Bill | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -44,6 +50,20 @@ export default function Home() {
   const handleDelete = async (id: number) => {
     await removeLoan(id);
     if (editingLoan?.id === id) setEditingLoan(null);
+  };
+
+  const handleBillSubmit = async (input: BillInput) => {
+    if (editingBill) {
+      await editBill(editingBill.id, input);
+      setEditingBill(null);
+    } else {
+      await addBill(input);
+    }
+  };
+
+  const handleBillDelete = async (id: number) => {
+    await removeBill(id);
+    if (editingBill?.id === id) setEditingBill(null);
   };
 
   return (
@@ -89,6 +109,25 @@ export default function Home() {
                 />
               )}
             </div>
+            <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
+              <BillForm
+                key={editingBill?.id ?? "new"}
+                onSubmit={handleBillSubmit}
+                editingBill={editingBill}
+                onCancelEdit={() => setEditingBill(null)}
+              />
+            </div>
+            <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
+              {billsLoading ? (
+                <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
+              ) : (
+                <BillList
+                  bills={bills}
+                  onEdit={setEditingBill}
+                  onDelete={handleBillDelete}
+                />
+              )}
+            </div>
           </div>
 
           {/* Calendar */}
@@ -96,8 +135,12 @@ export default function Home() {
             <Calendar
               loans={loans}
               payments={payments}
+              bills={bills}
+              billPayments={billPayments}
               onRecordPayment={recordPayment}
               onUndoPayment={undoPayment}
+              onRecordBillPayment={recordBillPayment}
+              onUndoBillPayment={undoBillPayment}
             />
           </div>
         </div>

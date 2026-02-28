@@ -18,14 +18,19 @@ import CalendarDayCell, { type DayPayment } from "./CalendarDayCell";
 import PaymentDialog, { type PaymentDialogData } from "./PaymentDialog";
 import DayOverviewDialog from "./DayOverviewDialog";
 import { getPaymentSchedule } from "@/lib/payments";
-import { getLoanColor } from "@/lib/colors";
-import type { Loan, Payment } from "@/lib/types";
+import { getBillSchedule } from "@/lib/bill-schedule";
+import { getLoanColor, getBillColor } from "@/lib/colors";
+import type { Loan, Payment, Bill, BillPayment } from "@/lib/types";
 
 interface CalendarProps {
   loans: Loan[];
   payments: Payment[];
+  bills: Bill[];
+  billPayments: BillPayment[];
   onRecordPayment: (loanId: number, date: string, amount: number) => Promise<void>;
   onUndoPayment: (loanId: number, date: string) => Promise<void>;
+  onRecordBillPayment: (billId: number, date: string, amount: number) => Promise<void>;
+  onUndoBillPayment: (billId: number, date: string) => Promise<void>;
 }
 
 type ViewMode = "month" | "year";
@@ -33,13 +38,13 @@ type ViewMode = "month" | "year";
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const WEEKDAYS_SHORT = ["S", "M", "T", "W", "T", "F", "S"];
 
-export default function Calendar({ loans, payments, onRecordPayment, onUndoPayment }: CalendarProps) {
+export default function Calendar({ loans, payments, bills, billPayments, onRecordPayment, onUndoPayment, onRecordBillPayment, onUndoBillPayment }: CalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [view, setView] = useState<ViewMode>("month");
   const [dialog, setDialog] = useState<PaymentDialogData | null>(null);
   const [dayOverview, setDayOverview] = useState<{ payments: DayPayment[]; date: string } | null>(null);
 
-  // Build a map of date string -> day payments across all loans
+  // Build a map of date string -> day payments across all loans and bills
   const paymentMap = useMemo(() => {
     const map = new Map<string, DayPayment[]>();
 
@@ -50,8 +55,9 @@ export default function Calendar({ loans, payments, onRecordPayment, onUndoPayme
       for (const entry of schedule) {
         const existing = map.get(entry.date) ?? [];
         existing.push({
-          loanId: loan.id,
-          loanName: loan.name,
+          type: "loan",
+          itemId: loan.id,
+          name: loan.name,
           scheduledAmount: entry.scheduledAmount,
           paid: entry.paid,
           paidAmount: entry.paidAmount,
@@ -62,15 +68,38 @@ export default function Calendar({ loans, payments, onRecordPayment, onUndoPayme
       }
     });
 
+    // Bill schedule: cap at end of current calendar year + 1 year
+    const maxDate = new Date(currentMonth.getFullYear() + 1, 11, 31);
+    bills.forEach((bill) => {
+      const color = getBillColor(bill.id);
+      const schedule = getBillSchedule(bill, billPayments, maxDate);
+
+      for (const entry of schedule) {
+        const existing = map.get(entry.date) ?? [];
+        existing.push({
+          type: "bill",
+          itemId: bill.id,
+          name: bill.name,
+          scheduledAmount: entry.scheduledAmount,
+          paid: entry.paid,
+          paidAmount: entry.paidAmount,
+          canPay: true, // bills are always independently payable
+          color,
+        });
+        map.set(entry.date, existing);
+      }
+    });
+
     return map;
-  }, [loans, payments]);
+  }, [loans, payments, bills, billPayments, currentMonth]);
 
   const currentYear = currentMonth.getFullYear();
 
   const handlePaymentClick = (p: DayPayment, date: string) => {
     setDialog({
-      loanId: p.loanId,
-      loanName: p.loanName,
+      type: p.type,
+      itemId: p.itemId,
+      name: p.name,
       date,
       scheduledAmount: p.scheduledAmount,
       paid: p.paid,
@@ -161,6 +190,8 @@ export default function Calendar({ loans, payments, onRecordPayment, onUndoPayme
           data={dialog}
           onRecord={onRecordPayment}
           onUndo={onUndoPayment}
+          onRecordBillPayment={onRecordBillPayment}
+          onUndoBillPayment={onUndoBillPayment}
           onClose={() => setDialog(null)}
         />
       )}

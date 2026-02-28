@@ -20,3 +20,7 @@ const COLORS: LoanColor[] = [
 export function getLoanColor(index: number): LoanColor {
   return COLORS[index % COLORS.length];
 }
+
+export function getBillColor(billId: number): LoanColor {
+  return COLORS[(billId + 4) % COLORS.length];
+}

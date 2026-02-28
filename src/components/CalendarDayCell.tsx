@@ -4,8 +4,9 @@ import LoanIndicator from "./LoanIndicator";
 import type { LoanColor } from "@/lib/colors";
 
 export interface DayPayment {
-  loanId: number;
-  loanName: string;
+  type: "loan" | "bill";
+  itemId: number;
+  name: string;
   scheduledAmount: number;
   paid: boolean;
   paidAmount: number | null;
@@ -59,7 +60,7 @@ export default function CalendarDayCell({
         {payments.slice(0, MAX_VISIBLE).map((p, i) => (
           <LoanIndicator
             key={i}
-            name={p.loanName}
+            name={p.name}
             scheduledAmount={p.scheduledAmount}
             paid={p.paid}
             paidAmount={p.paidAmount}

@@ -4,8 +4,9 @@ import { useState } from "react";
 import type { LoanColor } from "@/lib/colors";
 
 export interface PaymentDialogData {
-  loanId: number;
-  loanName: string;
+  type: "loan" | "bill";
+  itemId: number;
+  name: string;
   date: string;
   scheduledAmount: number;
   paid: boolean;
@@ -17,28 +18,45 @@ interface PaymentDialogProps {
   data: PaymentDialogData;
   onRecord: (loanId: number, date: string, amount: number) => Promise<void>;
   onUndo: (loanId: number, date: string) => Promise<void>;
+  onRecordBillPayment?: (billId: number, date: string, amount: number) => Promise<void>;
+  onUndoBillPayment?: (billId: number, date: string) => Promise<void>;
   onClose: () => void;
 }
 
-export default function PaymentDialog({ data, onRecord, onUndo, onClose }: PaymentDialogProps) {
+export default function PaymentDialog({ data, onRecord, onUndo, onRecordBillPayment, onUndoBillPayment, onClose }: PaymentDialogProps) {
+  const isBill = data.type === "bill";
   const [amount, setAmount] = useState(data.paidAmount ?? data.scheduledAmount);
   const [submitting, setSubmitting] = useState(false);
 
   const handleRecord = async () => {
-    if (amount <= 0) return;
-    setSubmitting(true);
-    try {
-      await onRecord(data.loanId, data.date, amount);
-      onClose();
-    } finally {
-      setSubmitting(false);
+    if (isBill) {
+      setSubmitting(true);
+      try {
+        await onRecordBillPayment?.(data.itemId, data.date, data.scheduledAmount);
+        onClose();
+      } finally {
+        setSubmitting(false);
+      }
+    } else {
+      if (amount <= 0) return;
+      setSubmitting(true);
+      try {
+        await onRecord(data.itemId, data.date, amount);
+        onClose();
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
   const handleUndo = async () => {
     setSubmitting(true);
     try {
-      await onUndo(data.loanId, data.date);
+      if (isBill) {
+        await onUndoBillPayment?.(data.itemId, data.date);
+      } else {
+        await onUndo(data.itemId, data.date);
+      }
       onClose();
     } finally {
       setSubmitting(false);
@@ -54,7 +72,7 @@ export default function PaymentDialog({ data, onRecord, onUndo, onClose }: Payme
       >
         <div className="flex items-center gap-2 mb-3">
           <span className={`h-3 w-3 rounded-full ${data.color.dot}`} />
-          <span className="font-medium text-gb-fg1 text-sm">{data.loanName}</span>
+          <span className="font-medium text-gb-fg1 text-sm">{data.name}</span>
         </div>
 
         <div className="text-xs text-gb-fg4 mb-1">{data.date}</div>
@@ -85,22 +103,24 @@ export default function PaymentDialog({ data, onRecord, onUndo, onClose }: Payme
           </div>
         ) : (
           <div className="space-y-3">
-            <div>
-              <label className="block text-xs text-gb-fg3 mb-1">Amount to pay (PHP)</label>
-              <input
-                type="number"
-                value={amount || ""}
-                onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                className="w-full rounded-md border border-gb-bg3 bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-blue focus:ring-1 focus:ring-gb-blue outline-none"
-                min="0"
-                step="0.01"
-                autoFocus
-              />
-            </div>
+            {!isBill && (
+              <div>
+                <label className="block text-xs text-gb-fg3 mb-1">Amount to pay (PHP)</label>
+                <input
+                  type="number"
+                  value={amount || ""}
+                  onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
+                  className="w-full rounded-md border border-gb-bg3 bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-blue focus:ring-1 focus:ring-gb-blue outline-none"
+                  min="0"
+                  step="0.01"
+                  autoFocus
+                />
+              </div>
+            )}
             <div className="flex gap-2">
               <button
                 onClick={handleRecord}
-                disabled={submitting || amount <= 0}
+                disabled={submitting || (!isBill && amount <= 0)}
                 className="flex-1 rounded-md bg-gb-blue px-3 py-2 text-sm font-medium text-gb-bg0 hover:bg-gb-blue-dim disabled:opacity-50"
               >
                 {submitting ? "Saving..." : "Mark Paid"}

@@ -38,6 +38,23 @@ async function runMigrations() {
         expires_at TEXT NOT NULL,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       )`,
+      `CREATE TABLE IF NOT EXISTS bills (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        name       TEXT NOT NULL,
+        amount     REAL NOT NULL,
+        frequency  TEXT NOT NULL,
+        start_date TEXT NOT NULL,
+        user_id    INTEGER REFERENCES users(id),
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )`,
+      `CREATE TABLE IF NOT EXISTS bill_payments (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        bill_id    INTEGER NOT NULL REFERENCES bills(id) ON DELETE CASCADE,
+        date       TEXT NOT NULL,
+        amount     REAL NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE(bill_id, date)
+      )`,
     ],
     "write"
   );

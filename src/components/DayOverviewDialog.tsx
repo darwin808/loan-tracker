@@ -30,7 +30,7 @@ export default function DayOverviewDialog({ date, payments, onPaymentClick, onCl
           {payments.map((p, i) => (
             <LoanIndicator
               key={i}
-              name={p.loanName}
+              name={p.name}
               scheduledAmount={p.scheduledAmount}
               paid={p.paid}
               paidAmount={p.paidAmount}

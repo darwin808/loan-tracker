@@ -39,3 +39,38 @@ export interface ScheduleEntry {
   paidAmount: number | null;
   canPay: boolean; // true only for the first unpaid entry (sequential enforcement)
 }
+
+// ── Bills ──────────────────────────────────────────────────
+
+export type BillFrequency = "monthly" | "yearly";
+
+export interface Bill {
+  id: number;
+  name: string;
+  amount: number;
+  frequency: BillFrequency;
+  startDate: string; // YYYY-MM-DD
+  createdAt: string;
+}
+
+export interface BillInput {
+  name: string;
+  amount: number;
+  frequency: BillFrequency;
+  startDate: string;
+}
+
+export interface BillPayment {
+  id: number;
+  billId: number;
+  date: string;
+  amount: number;
+  createdAt: string;
+}
+
+export interface BillScheduleEntry {
+  date: string;
+  scheduledAmount: number;
+  paid: boolean;
+  paidAmount: number | null;
+}
