@@ -10,6 +10,7 @@ interface BillListProps {
 }
 
 const FREQUENCY_LABELS: Record<string, string> = {
+  weekly: "Weekly",
   biweekly: "Every 2 Wks",
   monthly: "Monthly",
   yearly: "Yearly",
@@ -47,7 +48,7 @@ export default function BillList({ bills, onEdit, onDelete }: BillListProps) {
                   </span>
                 </div>
                 <div className="text-xs text-gb-fg4">
-                  ₱{bill.amount.toLocaleString()}/{bill.frequency === "yearly" ? "yr" : bill.frequency === "biweekly" ? "2wk" : "mo"}
+                  ₱{bill.amount.toLocaleString()}/{bill.frequency === "yearly" ? "yr" : bill.frequency === "monthly" ? "mo" : bill.frequency === "biweekly" ? "2wk" : "wk"}
                   &middot; from {bill.startDate}
                 </div>
               </div>
