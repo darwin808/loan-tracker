@@ -40,6 +40,8 @@ export function getBillSchedule(bill: Bill, billPayments: BillPayment[], maxDate
 
 function dateAtOffset(start: Date, offset: number, frequency: string): Date {
   switch (frequency) {
+    case "daily":
+      return addDays(start, offset);
     case "weekly":
       return addDays(start, offset * 7);
     case "biweekly":

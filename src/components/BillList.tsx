@@ -14,6 +14,7 @@ interface BillListProps {
 }
 
 const FREQUENCY_LABELS: Record<string, string> = {
+  daily: "Daily",
   weekly: "Weekly",
   biweekly: "Every 2 Wks",
   monthly: "Monthly",
@@ -21,6 +22,7 @@ const FREQUENCY_LABELS: Record<string, string> = {
 };
 
 const RATE_SUFFIX: Record<string, string> = {
+  daily: "/day",
   weekly: "/wk",
   biweekly: "/2wk",
   monthly: "/mo",

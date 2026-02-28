@@ -5,7 +5,7 @@ import type { BillInput, BillFrequency } from "@/lib/types";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
-const VALID_FREQUENCIES: BillFrequency[] = ["weekly", "biweekly", "monthly", "yearly"];
+const VALID_FREQUENCIES: BillFrequency[] = ["daily", "weekly", "biweekly", "monthly", "yearly"];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function PUT(request: Request, { params }: RouteParams) {
