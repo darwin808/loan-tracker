@@ -42,7 +42,7 @@ export interface ScheduleEntry {
 
 // ── Bills ──────────────────────────────────────────────────
 
-export type BillFrequency = "daily" | "weekly" | "biweekly" | "monthly" | "yearly";
+export type BillFrequency = "once" | "daily" | "weekly" | "biweekly" | "monthly" | "yearly";
 
 export interface Bill {
   id: number;

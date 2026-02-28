@@ -32,6 +32,7 @@ export function getBillSchedule(bill: Bill, billPayments: BillPayment[], maxDate
     });
 
     offset++;
+    if (bill.frequency === "once") break;
     if (offset > 10000) break; // safety
   }
 
@@ -40,6 +41,8 @@ export function getBillSchedule(bill: Bill, billPayments: BillPayment[], maxDate
 
 function dateAtOffset(start: Date, offset: number, frequency: string): Date {
   switch (frequency) {
+    case "once":
+      return start; // only offset 0 matters; loop breaks after first entry
     case "daily":
       return addDays(start, offset);
     case "weekly":

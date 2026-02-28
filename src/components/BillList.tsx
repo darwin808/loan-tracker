@@ -14,6 +14,7 @@ interface BillListProps {
 }
 
 const FREQUENCY_LABELS: Record<string, string> = {
+  once: "One-time",
   daily: "Daily",
   weekly: "Weekly",
   biweekly: "Every 2 Wks",
@@ -75,7 +76,7 @@ export default function BillList({ bills, onEdit, onDelete }: BillListProps) {
                   {FREQUENCY_LABELS[bill.frequency]}
                 </span>
                 <span className="text-xs text-gb-fg4">
-                  {RATE_SUFFIX[bill.frequency]} &middot; from {fmtDate(bill.startDate)}
+                  {bill.frequency === "once" ? `on ${fmtDate(bill.startDate)}` : `${RATE_SUFFIX[bill.frequency]} \u00b7 from ${fmtDate(bill.startDate)}`}
                 </span>
               </div>
             </div>
