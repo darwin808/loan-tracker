@@ -63,7 +63,17 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 
   const handleLogout = useCallback(async () => {
     await fetch("/api/auth/logout", { method: "POST" });
+    localStorage.setItem("logout", String(Date.now()));
     router.push("/");
+  }, [router]);
+
+  // Sync logout across tabs
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "logout") router.push("/login");
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, [router]);
 
   return (
