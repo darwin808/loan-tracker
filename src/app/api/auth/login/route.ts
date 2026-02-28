@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 import { db, initDb } from "@/lib/db";
 import { verifyPassword, createSession } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!checkRateLimit(ip).allowed) {
+    return NextResponse.json(
+      { errors: ["Too many attempts. Please try again later."] },
+      { status: 429 }
+    );
+  }
+
   await initDb;
   const body = await request.json();
 
@@ -37,7 +46,7 @@ export async function POST(request: Request) {
   res.cookies.set("session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     maxAge: 30 * 24 * 60 * 60,
   });

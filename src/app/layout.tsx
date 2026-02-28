@@ -13,8 +13,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Loan Tracker",
-  description: "Track your loans and payment schedules",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://pesotrack.vercel.app"
+  ),
+  title: "PesoTrack — Personal Finance Tracker",
+  description:
+    "Track loans, bills, income, and savings. Free personal finance app for Filipinos.",
+  openGraph: {
+    title: "PesoTrack — Personal Finance Tracker",
+    description:
+      "Track loans, bills, income, and savings. Free personal finance app for Filipinos.",
+    type: "website",
+    locale: "en_PH",
+  },
+  twitter: {
+    card: "summary",
+    title: "PesoTrack — Personal Finance Tracker",
+    description:
+      "Track loans, bills, income, and savings. Free personal finance app for Filipinos.",
+  },
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

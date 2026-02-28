@@ -1,10 +1,19 @@
 import { NextResponse } from "next/server";
 import { db, initDb } from "@/lib/db";
 import { hashPassword, createSession } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const USERNAME_RE = /^[a-zA-Z0-9_]+$/;
 
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!checkRateLimit(ip).allowed) {
+    return NextResponse.json(
+      { errors: ["Too many attempts. Please try again later."] },
+      { status: 429 }
+    );
+  }
+
   await initDb;
   const body = await request.json();
   const errors: string[] = [];
@@ -14,7 +23,7 @@ export async function POST(request: Request) {
   else if (!USERNAME_RE.test(username)) errors.push("Username must be alphanumeric (underscores allowed)");
 
   const password = typeof body.password === "string" ? body.password : "";
-  if (password.length < 6) errors.push("Password must be at least 6 characters");
+  if (password.length < 8) errors.push("Password must be at least 8 characters");
 
   if (errors.length > 0) {
     return NextResponse.json({ errors }, { status: 400 });
@@ -50,7 +59,7 @@ export async function POST(request: Request) {
   res.cookies.set("session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     maxAge: 30 * 24 * 60 * 60,
   });

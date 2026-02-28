@@ -141,7 +141,7 @@ export default function Home() {
     <div className="h-screen bg-gb-bg1 flex flex-col overflow-hidden">
       <header className="bg-gb-bg0 border-b border-gb-bg3 shrink-0">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gb-fg0">Loan Tracker</h1>
+          <h1 className="text-xl font-bold text-gb-fg0">PesoTrack</h1>
           {user && (
             <div className="flex items-center gap-3">
               <span className="text-sm text-gb-fg3">{user.username}</span>

@@ -45,9 +45,9 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gb-bg1 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-6">
-          <h1 className="text-xl font-bold text-gb-fg0 mb-1">Loan Tracker</h1>
+          <h1 className="text-xl font-bold text-gb-fg0 mb-1">PesoTrack</h1>
           <p className="text-sm text-gb-fg4 mb-6">
-            {isRegister ? "Create an account" : "Sign in to your account"}
+            {isRegister ? "Create an account" : "Track your loans, bills, and savings"}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
