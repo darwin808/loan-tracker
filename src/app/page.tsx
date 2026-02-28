@@ -295,14 +295,19 @@ export default function Home() {
 
             {/* Total savings summary */}
             {savingsAccounts.length > 0 && (
-              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 px-4 py-3 flex items-center justify-between">
-                <span className="text-sm text-gb-fg3 flex items-center gap-1.5">
-                  <PiggyBank size={14} className="text-gb-purple" />
-                  Total Savings
-                </span>
-                <span className="text-sm font-semibold text-gb-purple">
+              <div className="rounded-lg border border-gb-purple/30 bg-gb-purple/5 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="rounded-full bg-gb-purple/15 p-1.5">
+                    <PiggyBank size={16} className="text-gb-purple" />
+                  </div>
+                  <span className="text-xs font-medium text-gb-fg3 uppercase tracking-wide">Total Savings</span>
+                </div>
+                <div className="text-2xl font-bold text-gb-purple">
                   ₱{totalSavings.toLocaleString()}
-                </span>
+                </div>
+                <div className="text-[11px] text-gb-fg4 mt-1">
+                  across {savingsAccounts.length} account{savingsAccounts.length !== 1 ? "s" : ""}
+                </div>
               </div>
             )}
           </div>
