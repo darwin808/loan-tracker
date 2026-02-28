@@ -111,24 +111,24 @@ export default function DonutChart({ loanTotal, billTotal, incomeTotal, size = 1
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 text-xs">
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs">
         {loanTotal > 0 && (
-          <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-gb-blue" />
+          <span className="flex items-center gap-1 whitespace-nowrap">
+            <span className="h-2 w-2 rounded-full bg-gb-blue shrink-0" />
             <span className="text-gb-fg3">Loans</span>
             <span className="font-medium text-gb-fg1">₱{loanTotal.toLocaleString()}</span>
           </span>
         )}
         {billTotal > 0 && (
-          <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-gb-orange" />
+          <span className="flex items-center gap-1 whitespace-nowrap">
+            <span className="h-2 w-2 rounded-full bg-gb-orange shrink-0" />
             <span className="text-gb-fg3">Bills</span>
             <span className="font-medium text-gb-fg1">₱{billTotal.toLocaleString()}</span>
           </span>
         )}
         {net > 0 && (
-          <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-gb-green" />
+          <span className="flex items-center gap-1 whitespace-nowrap">
+            <span className="h-2 w-2 rounded-full bg-gb-green shrink-0" />
             <span className="text-gb-fg3">Left</span>
             <span className="font-medium text-gb-fg1">₱{net.toLocaleString()}</span>
           </span>
