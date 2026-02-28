@@ -29,12 +29,12 @@ export default function LoanIndicator({
     <button
       type="button"
       onClick={interactive ? onClick : undefined}
-      className={`w-full text-left truncate rounded px-1 py-0.5 text-[10px] leading-tight border ${
+      className={`w-full text-left truncate rounded-sm px-1 py-0.5 text-[10px] leading-tight border transition-opacity ${
         paid
-          ? `${color.bg} ${color.border} opacity-70 cursor-pointer`
+          ? `${color.bg} ${color.border} opacity-60 cursor-pointer hover:opacity-80`
           : canPay
-          ? `${color.bg} ${color.text} ${color.border} cursor-pointer`
-          : `${color.bg} ${color.border} opacity-40 cursor-default`
+          ? `${color.bg} ${color.text} ${color.border} cursor-pointer hover:opacity-80`
+          : `${color.bg} ${color.border} opacity-35 cursor-default`
       }`}
       title={
         paid

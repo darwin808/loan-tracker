@@ -49,11 +49,11 @@ export default function CalendarDayCell({
 
   return (
     <div
-      className={`min-h-[50px] md:min-h-[80px] border-2 border-gb-fg0 p-1 select-none ${
+      className={`min-h-[50px] md:min-h-[80px] border-r border-b border-gb-bg2 p-1 md:p-1.5 select-none transition-colors ${
         selected
           ? "bg-gb-blue-bg"
           : inMonth
-          ? "bg-gb-bg0"
+          ? "bg-gb-bg0 hover:bg-gb-bg1/50"
           : "bg-gb-bg1"
       }`}
       onMouseDown={(e) => {
@@ -71,12 +71,12 @@ export default function CalendarDayCell({
       onTouchEnd={() => onDragEnd?.()}
     >
       <div
-        className={`text-xs font-medium mb-0.5 ${
+        className={`text-[11px] md:text-xs mb-0.5 ${
           today
-            ? "bg-gb-orange text-gb-bg0 w-5 h-5 flex items-center justify-center font-bold"
+            ? "bg-gb-orange text-gb-bg0 w-5 h-5 rounded-full flex items-center justify-center font-bold"
             : inMonth
-            ? "text-gb-fg1"
-            : "text-gb-bg4"
+            ? "text-gb-fg1 font-medium"
+            : "text-gb-bg3"
         }`}
       >
         {date.getDate()}

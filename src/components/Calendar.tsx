@@ -154,37 +154,23 @@ export default function Calendar({ loans, payments, bills, billPayments, current
   return (
     <div>
       {/* Navigation */}
-      <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={() =>
-            setCurrentMonth(
-              view === "year"
-                ? new Date(currentMonth.getFullYear() - 1, currentMonth.getMonth())
-                : subMonths(currentMonth, 1)
-            )
-          }
-          className="p-1.5 nb-btn rounded-sm bg-gb-bg0 text-gb-fg2 hover:nb-btn-press"
-        >
-          <ChevronLeft size={18} />
-        </button>
-        <h2 className="text-lg font-semibold text-gb-fg1">
-          {view === "month" ? format(currentMonth, "MMMM yyyy") : currentYear.toString()}
-        </h2>
-        <div className="flex gap-2">
+      <div className="flex items-center justify-between mb-3 md:mb-4">
+        <div className="flex items-center gap-1.5">
           <button
-            onClick={() => setCurrentMonth(new Date())}
-            className="px-3 py-1.5 text-sm nb-btn rounded-sm bg-gb-bg0 text-gb-fg2 hover:nb-btn-press flex items-center gap-1.5"
+            onClick={() =>
+              setCurrentMonth(
+                view === "year"
+                  ? new Date(currentMonth.getFullYear() - 1, currentMonth.getMonth())
+                  : subMonths(currentMonth, 1)
+              )
+            }
+            className="p-1 md:p-1.5 rounded-sm text-gb-fg3 hover:text-gb-fg0 hover:bg-gb-bg2 transition-colors"
           >
-            <CalendarDays size={14} />
-            Today
+            <ChevronLeft size={18} />
           </button>
-          <button
-            onClick={() => setView(view === "month" ? "year" : "month")}
-            className="p-1.5 nb-btn rounded-sm bg-gb-bg0 text-gb-fg2 hover:nb-btn-press"
-            title={view === "month" ? "Year view" : "Month view"}
-          >
-            {view === "month" ? <LayoutGrid size={18} /> : <CalendarIcon size={18} />}
-          </button>
+          <h2 className="text-sm md:text-lg font-bold text-gb-fg0 min-w-[130px] md:min-w-[180px] text-center">
+            {view === "month" ? format(currentMonth, "MMMM yyyy") : currentYear.toString()}
+          </h2>
           <button
             onClick={() =>
               setCurrentMonth(
@@ -193,9 +179,25 @@ export default function Calendar({ loans, payments, bills, billPayments, current
                   : addMonths(currentMonth, 1)
               )
             }
-            className="p-1.5 nb-btn rounded-sm bg-gb-bg0 text-gb-fg2 hover:nb-btn-press"
+            className="p-1 md:p-1.5 rounded-sm text-gb-fg3 hover:text-gb-fg0 hover:bg-gb-bg2 transition-colors"
           >
             <ChevronRight size={18} />
+          </button>
+        </div>
+        <div className="flex gap-1.5">
+          <button
+            onClick={() => setCurrentMonth(new Date())}
+            className="px-2.5 py-1 text-xs md:text-sm font-medium rounded-sm text-gb-fg3 hover:text-gb-fg0 hover:bg-gb-bg2 transition-colors flex items-center gap-1"
+          >
+            <CalendarDays size={14} />
+            <span className="hidden md:inline">Today</span>
+          </button>
+          <button
+            onClick={() => setView(view === "month" ? "year" : "month")}
+            className="p-1 md:p-1.5 rounded-sm text-gb-fg3 hover:text-gb-fg0 hover:bg-gb-bg2 transition-colors"
+            title={view === "month" ? "Year view" : "Month view"}
+          >
+            {view === "month" ? <LayoutGrid size={18} /> : <CalendarIcon size={18} />}
           </button>
         </div>
       </div>
@@ -295,17 +297,18 @@ function MonthView({
 
   return (
     <>
-      <div className="grid grid-cols-7">
-        {WEEKDAYS.map((day) => (
+      <div className="grid grid-cols-7 bg-gb-bg1 rounded-t-sm">
+        {WEEKDAYS.map((day, i) => (
           <div
             key={day}
-            className="text-center text-xs font-medium text-gb-fg4 py-2 border-b border-gb-bg2"
+            className="text-center text-[10px] md:text-xs font-bold text-gb-fg3 uppercase tracking-wider py-1.5 md:py-2"
           >
-            {day}
+            <span className="md:hidden">{WEEKDAYS_SHORT[i]}</span>
+            <span className="hidden md:inline">{day}</span>
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 border border-gb-bg2 rounded-b-sm overflow-hidden">
         {calendarDays.map((date, i) => {
           const dateStr = format(date, "yyyy-MM-dd");
           const dayPayments = paymentMap.get(dateStr) ?? [];
