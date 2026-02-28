@@ -1,7 +1,10 @@
 "use client";
 
+import { format, parseISO } from "date-fns";
 import type { Bill } from "@/lib/types";
 import { getBillColor } from "@/lib/colors";
+
+function fmtDate(d: string) { return format(parseISO(d), "MMM d, yyyy"); }
 
 interface BillListProps {
   bills: Bill[];
@@ -56,7 +59,7 @@ export default function BillList({ bills, onEdit, onDelete }: BillListProps) {
                     {FREQUENCY_LABELS[bill.frequency]}
                   </span>
                   <span className="text-xs text-gb-fg4">
-                    {RATE_SUFFIX[bill.frequency]} &middot; from {bill.startDate}
+                    {RATE_SUFFIX[bill.frequency]} &middot; from {fmtDate(bill.startDate)}
                   </span>
                 </div>
                 <div className="flex gap-2">

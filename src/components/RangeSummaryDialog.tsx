@@ -1,4 +1,7 @@
+import { format, parseISO } from "date-fns";
 import type { DayPayment } from "./CalendarDayCell";
+
+function fmtDate(d: string) { return format(parseISO(d), "MMM d, yyyy"); }
 
 interface RangeSummaryEntry {
   date: string;
@@ -44,7 +47,7 @@ export default function RangeSummaryDialog({ startDate, endDate, paymentMap, onC
         <div className="px-4 pt-4 pb-3 border-b border-gb-bg2">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-semibold text-gb-fg0 text-sm">
-              {startDate === endDate ? startDate : `${startDate} — ${endDate}`}
+              {startDate === endDate ? fmtDate(startDate) : `${fmtDate(startDate)} — ${fmtDate(endDate)}`}
             </h3>
             <button
               onClick={onClose}
@@ -75,7 +78,7 @@ export default function RangeSummaryDialog({ startDate, endDate, paymentMap, onC
                   }`}
                 >
                   <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${e.payment.color.dot}`} />
-                  <span className="text-xs text-gb-fg4 shrink-0 w-20">{e.date}</span>
+                  <span className="text-xs text-gb-fg4 shrink-0 w-24">{fmtDate(e.date)}</span>
                   <span className={`flex-1 truncate text-gb-fg1 ${e.payment.paid ? "line-through" : ""}`}>
                     {e.payment.name}
                   </span>

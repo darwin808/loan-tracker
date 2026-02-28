@@ -1,8 +1,11 @@
 "use client";
 
+import { format, parseISO } from "date-fns";
 import type { Loan, Payment } from "@/lib/types";
 import { getLoanColor } from "@/lib/colors";
 import { getPaymentSchedule, getEndDate, getTotalPaid } from "@/lib/payments";
+
+function fmtDate(d: string) { return format(parseISO(d), "MMM d, yyyy"); }
 
 interface LoanListProps {
   loans: Loan[];
@@ -72,7 +75,7 @@ export default function LoanList({ loans, payments, onEdit, onDelete }: LoanList
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gb-fg4">
-                  {loan.startDate} → {endDate ?? "—"}
+                  {fmtDate(loan.startDate)} → {endDate ? fmtDate(endDate) : "—"}
                 </span>
                 <div className="flex gap-2">
                   <button
