@@ -49,9 +49,9 @@ export default function RangeSummaryDialog({ startDate, endDate, paymentMap, onC
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
-      <div className="absolute inset-0 bg-gb-fg0/30" />
+      <div className="absolute inset-0 bg-gb-fg0/40" />
       <div
-        className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg w-96 max-h-[80vh] flex flex-col"
+        className="relative bg-gb-bg0 nb-card rounded-sm w-96 max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

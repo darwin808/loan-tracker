@@ -12,9 +12,9 @@ interface DayOverviewDialogProps {
 export default function DayOverviewDialog({ date, payments, onPaymentClick, onClose }: DayOverviewDialogProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
-      <div className="absolute inset-0 bg-gb-fg0/30" />
+      <div className="absolute inset-0 bg-gb-fg0/40" />
       <div
-        className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-80 max-h-[80vh] overflow-y-auto"
+        className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-80 max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-3">

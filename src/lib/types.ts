@@ -3,6 +3,8 @@ export type Frequency = "daily" | "weekly" | "monthly";
 export interface User {
   id: number;
   username: string;
+  email: string | null;
+  hasPassword: boolean;
   createdAt: string;
 }
 

@@ -15,16 +15,16 @@ export async function POST(request: Request) {
   await initDb;
   const body = await request.json();
 
-  const username = typeof body.username === "string" ? body.username.trim().toLowerCase() : "";
+  const login = typeof body.username === "string" ? body.username.trim().toLowerCase() : "";
   const password = typeof body.password === "string" ? body.password : "";
 
-  if (!username || !password) {
-    return NextResponse.json({ errors: ["Username and password are required"] }, { status: 400 });
+  if (!login || !password) {
+    return NextResponse.json({ errors: ["Username/email and password are required"] }, { status: 400 });
   }
 
   const result = await db.execute({
-    sql: "SELECT id, username, password_hash, created_at FROM users WHERE username = ?",
-    args: [username],
+    sql: "SELECT id, username, email, password_hash, created_at FROM users WHERE username = ? OR email = ?",
+    args: [login, login],
   });
 
   if (result.rows.length === 0) {
@@ -32,7 +32,17 @@ export async function POST(request: Request) {
   }
 
   const user = result.rows[0];
-  const valid = await verifyPassword(password, user.password_hash as string);
+  const passwordHash = user.password_hash as string;
+
+  // OAuth-only users have empty password_hash
+  if (!passwordHash) {
+    return NextResponse.json(
+      { errors: ["This account uses Google sign-in. Please use the Google button to log in."] },
+      { status: 400 }
+    );
+  }
+
+  const valid = await verifyPassword(password, passwordHash);
   if (!valid) {
     return NextResponse.json({ errors: ["Invalid username or password"] }, { status: 401 });
   }
@@ -41,12 +51,13 @@ export async function POST(request: Request) {
   const res = NextResponse.json({
     id: user.id,
     username: user.username,
+    email: user.email ?? null,
     createdAt: user.created_at,
   });
   res.cookies.set("session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     path: "/",
     maxAge: 30 * 24 * 60 * 60,
   });

@@ -163,7 +163,7 @@ export default function Calendar({ loans, payments, bills, billPayments, current
                 : subMonths(currentMonth, 1)
             )
           }
-          className="p-1.5 rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2"
+          className="p-1.5 nb-btn rounded-sm bg-gb-bg0 text-gb-fg2 hover:nb-btn-press"
         >
           <ChevronLeft size={18} />
         </button>
@@ -173,14 +173,14 @@ export default function Calendar({ loans, payments, bills, billPayments, current
         <div className="flex gap-2">
           <button
             onClick={() => setCurrentMonth(new Date())}
-            className="px-3 py-1.5 text-sm rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2 flex items-center gap-1.5"
+            className="px-3 py-1.5 text-sm nb-btn rounded-sm bg-gb-bg0 text-gb-fg2 hover:nb-btn-press flex items-center gap-1.5"
           >
             <CalendarDays size={14} />
             Today
           </button>
           <button
             onClick={() => setView(view === "month" ? "year" : "month")}
-            className="p-1.5 rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2"
+            className="p-1.5 nb-btn rounded-sm bg-gb-bg0 text-gb-fg2 hover:nb-btn-press"
             title={view === "month" ? "Year view" : "Month view"}
           >
             {view === "month" ? <LayoutGrid size={18} /> : <CalendarIcon size={18} />}
@@ -193,7 +193,7 @@ export default function Calendar({ loans, payments, bills, billPayments, current
                   : addMonths(currentMonth, 1)
               )
             }
-            className="p-1.5 rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2"
+            className="p-1.5 nb-btn rounded-sm bg-gb-bg0 text-gb-fg2 hover:nb-btn-press"
           >
             <ChevronRight size={18} />
           </button>
@@ -390,7 +390,7 @@ function MiniMonth({
   return (
     <button
       onClick={onClick}
-      className="text-left p-2 rounded-md border border-gb-bg2 hover:bg-gb-bg1 cursor-pointer"
+      className="text-left p-2 nb-card-sm rounded-sm hover:bg-gb-bg1 cursor-pointer"
     >
       <div className="text-xs font-semibold text-gb-fg1 mb-1">
         {format(month, "MMMM")}

@@ -54,7 +54,7 @@ export default function BillList({ bills, onEdit, onDelete, filterType }: BillLi
         return (
           <div
             key={bill.id}
-            className={`relative rounded-md border-l-4 ${color.border} bg-gb-bg0 shadow-sm cursor-pointer hover:bg-gb-bg1 transition-colors`}
+            className={`relative nb-card-sm rounded-sm border-l-4 ${color.border} bg-gb-bg0 cursor-pointer hover:bg-gb-bg1 transition-colors`}
             onClick={() => onEdit(bill)}
           >
             <button
@@ -88,19 +88,19 @@ export default function BillList({ bills, onEdit, onDelete, filterType }: BillLi
             {/* Delete confirmation overlay */}
             {confirmingId === bill.id && (
               <div
-                className="absolute inset-0 bg-gb-bg0/95 rounded-md flex items-center justify-center gap-2 z-10"
+                className="absolute inset-0 bg-gb-bg0/95 rounded-sm flex items-center justify-center gap-2 z-10"
                 onClick={(e) => e.stopPropagation()}
               >
                 <span className="text-sm text-gb-fg2">Delete?</span>
                 <button
                   onClick={() => { onDelete(bill.id); setConfirmingId(null); }}
-                  className="rounded px-2.5 py-1 text-xs font-medium bg-gb-red text-gb-bg0 hover:bg-gb-red-dim"
+                  className="nb-btn rounded-sm px-2.5 py-1 text-xs font-bold bg-gb-red text-gb-bg0 hover:nb-btn-press"
                 >
                   Yes
                 </button>
                 <button
                   onClick={() => setConfirmingId(null)}
-                  className="rounded px-2.5 py-1 text-xs font-medium border border-gb-bg3 text-gb-fg2 hover:bg-gb-bg1"
+                  className="nb-btn rounded-sm px-2.5 py-1 text-xs font-bold bg-gb-bg0 text-gb-fg2 hover:nb-btn-press"
                 >
                   No
                 </button>

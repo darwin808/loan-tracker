@@ -51,7 +51,7 @@ export default function SavingsForm({ onSubmit, editingAccount, onCancelEdit }: 
           type="text"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="w-full rounded-md border border-gb-bg3 bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-purple focus:ring-1 focus:ring-gb-purple outline-none"
+          className="w-full nb-input rounded-sm bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-purple outline-none"
           placeholder="e.g. BDO, BPI, GCash"
         />
       </div>
@@ -62,7 +62,7 @@ export default function SavingsForm({ onSubmit, editingAccount, onCancelEdit }: 
           type="number"
           value={form.balance || ""}
           onChange={(e) => setForm({ ...form, balance: parseFloat(e.target.value) || 0 })}
-          className="w-full rounded-md border border-gb-bg3 bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-purple focus:ring-1 focus:ring-gb-purple outline-none"
+          className="w-full nb-input rounded-sm bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-purple outline-none"
           placeholder="0.00"
           min="0"
           step="0.01"
@@ -75,7 +75,7 @@ export default function SavingsForm({ onSubmit, editingAccount, onCancelEdit }: 
         <button
           type="submit"
           disabled={submitting}
-          className="flex-1 rounded-md bg-gb-purple px-4 py-2 text-sm font-medium text-gb-bg0 hover:bg-gb-purple-dim disabled:opacity-50 flex items-center justify-center gap-1.5"
+          className="flex-1 nb-btn rounded-sm bg-gb-purple px-4 py-2 text-sm font-bold text-gb-bg0 hover:nb-btn-press disabled:opacity-50 flex items-center justify-center gap-1.5"
         >
           <Check size={14} />
           {submitting ? "Saving..." : editingAccount ? "Update" : "Add Account"}
@@ -84,7 +84,7 @@ export default function SavingsForm({ onSubmit, editingAccount, onCancelEdit }: 
           <button
             type="button"
             onClick={onCancelEdit}
-            className="rounded-md border border-gb-bg3 px-4 py-2 text-sm font-medium text-gb-fg2 hover:bg-gb-bg1"
+            className="nb-btn rounded-sm bg-gb-bg0 px-4 py-2 text-sm font-bold text-gb-fg2 hover:nb-btn-press"
           >
             Cancel
           </button>

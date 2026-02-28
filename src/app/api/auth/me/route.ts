@@ -7,7 +7,7 @@ export async function GET() {
     const { userId } = await requireAuth();
     await initDb;
     const result = await db.execute({
-      sql: "SELECT id, username, created_at FROM users WHERE id = ?",
+      sql: "SELECT id, username, email, password_hash, created_at FROM users WHERE id = ?",
       args: [userId],
     });
     if (result.rows.length === 0) {
@@ -17,6 +17,8 @@ export async function GET() {
     return NextResponse.json({
       id: user.id,
       username: user.username,
+      email: user.email ?? null,
+      hasPassword: !!(user.password_hash as string),
       createdAt: user.created_at,
     });
   } catch (e) {

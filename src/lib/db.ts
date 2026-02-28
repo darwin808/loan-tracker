@@ -83,6 +83,26 @@ async function runMigrations() {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     )`
   );
+
+  // Add email column to users
+  try {
+    await db.execute("ALTER TABLE users ADD COLUMN email TEXT UNIQUE");
+  } catch {
+    // Column already exists — ignore
+  }
+
+  // OAuth accounts table
+  await db.execute(
+    `CREATE TABLE IF NOT EXISTS oauth_accounts (
+      id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id             INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      provider            TEXT NOT NULL,
+      provider_account_id TEXT NOT NULL,
+      email               TEXT,
+      created_at          TEXT NOT NULL DEFAULT (datetime('now')),
+      UNIQUE(provider, provider_account_id)
+    )`
+  );
 }
 
 export const initDb = runMigrations();

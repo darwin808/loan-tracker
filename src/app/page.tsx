@@ -1,414 +1,142 @@
-"use client";
+import Link from "next/link";
+import { Landmark, Receipt, PiggyBank, CalendarDays, ArrowRight } from "lucide-react";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { startOfMonth, endOfMonth, format } from "date-fns";
-import { Landmark, Receipt, TrendingUp, PiggyBank, Plus, LogOut } from "lucide-react";
-import { useLoans } from "@/hooks/useLoans";
-import { useBills } from "@/hooks/useBills";
-import { useSavings } from "@/hooks/useSavings";
-import { getPaymentSchedule } from "@/lib/payments";
-import { getBillSchedule } from "@/lib/bill-schedule";
-import LoanForm from "@/components/LoanForm";
-import LoanList from "@/components/LoanList";
-import BillForm from "@/components/BillForm";
-import BillList from "@/components/BillList";
-import SavingsForm from "@/components/SavingsForm";
-import SavingsList from "@/components/SavingsList";
-import Calendar from "@/components/Calendar";
-import DonutChart from "@/components/DonutChart";
-import type { Loan, LoanInput, Bill, BillInput, SavingsAccount, SavingsInput, User } from "@/lib/types";
-
-type SidebarTab = "loans" | "bills" | "income" | "savings";
-type AddModal = "loan" | "bill" | "income" | "savings" | null;
-
-export default function Home() {
-  const router = useRouter();
-  const { loans, payments, loading, addLoan, editLoan, removeLoan, recordPayment, undoPayment } =
-    useLoans();
-  const { bills, billPayments, loading: billsLoading, addBill, editBill, removeBill, recordBillPayment, undoBillPayment } =
-    useBills();
-  const { accounts: savingsAccounts, loading: savingsLoading, addAccount, editAccount, removeAccount } =
-    useSavings();
-  const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
-  const [editingBill, setEditingBill] = useState<Bill | null>(null);
-  const [editingSavings, setEditingSavings] = useState<SavingsAccount | null>(null);
-  const [sidebarTab, setSidebarTab] = useState<SidebarTab>("loans");
-  const [showAddModal, setShowAddModal] = useState<AddModal>(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    fetch("/api/auth/me").then((res) => {
-      if (res.status === 401) {
-        router.push("/login");
-        return null;
-      }
-      return res.json();
-    }).then((data) => {
-      if (data) setUser(data);
-    });
-  }, [router]);
-
-  const handleLogout = useCallback(async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-  }, [router]);
-
-  const handleSubmit = async (input: LoanInput) => {
-    if (editingLoan) {
-      await editLoan(editingLoan.id, input);
-      setEditingLoan(null);
-    } else {
-      await addLoan(input);
-      setShowAddModal(null);
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    await removeLoan(id);
-    if (editingLoan?.id === id) setEditingLoan(null);
-  };
-
-  const handleBillSubmit = async (input: BillInput) => {
-    if (editingBill) {
-      await editBill(editingBill.id, input);
-      setEditingBill(null);
-    } else {
-      await addBill(input);
-      setShowAddModal(null);
-    }
-  };
-
-  const handleBillDelete = async (id: number) => {
-    await removeBill(id);
-    if (editingBill?.id === id) setEditingBill(null);
-  };
-
-  const handleSavingsSubmit = async (input: SavingsInput) => {
-    if (editingSavings) {
-      await editAccount(editingSavings.id, input);
-      setEditingSavings(null);
-    } else {
-      await addAccount(input);
-      setShowAddModal(null);
-    }
-  };
-
-  const handleSavingsDelete = async (id: number) => {
-    await removeAccount(id);
-    if (editingSavings?.id === id) setEditingSavings(null);
-  };
-
-  // Monthly summary for donut chart in sidebar — follows calendar month
-  const monthSummary = useMemo(() => {
-    const mStart = startOfMonth(currentMonth);
-    const mEnd = endOfMonth(currentMonth);
-    const startStr = format(mStart, "yyyy-MM-dd");
-    const endStr = format(mEnd, "yyyy-MM-dd");
-    const maxDate = new Date(currentMonth.getFullYear() + 1, 11, 31);
-
-    let loanTotal = 0;
-    let billTotal = 0;
-    let incomeTotal = 0;
-
-    loans.forEach((loan) => {
-      const schedule = getPaymentSchedule(loan, payments);
-      for (const entry of schedule) {
-        if (entry.date >= startStr && entry.date <= endStr) {
-          loanTotal += entry.scheduledAmount;
-        }
-      }
-    });
-
-    bills.forEach((bill) => {
-      const schedule = getBillSchedule(bill, billPayments, maxDate);
-      for (const entry of schedule) {
-        if (entry.date >= startStr && entry.date <= endStr) {
-          if (bill.type === "income") incomeTotal += entry.scheduledAmount;
-          else billTotal += entry.scheduledAmount;
-        }
-      }
-    });
-
-    return { loanTotal, billTotal, incomeTotal };
-  }, [loans, payments, bills, billPayments, currentMonth]);
-
-  const hasChartData = monthSummary.loanTotal > 0 || monthSummary.billTotal > 0 || monthSummary.incomeTotal > 0;
-  const totalSavings = savingsAccounts.reduce((sum, a) => sum + a.balance, 0);
-
+export default function LandingPage() {
   return (
-    <div className="h-screen bg-gb-bg1 flex flex-col overflow-hidden">
-      <header className="bg-gb-bg0 border-b border-gb-bg3 shrink-0">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gb-fg0">PesoTrack</h1>
-          {user && (
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gb-fg3">{user.username}</span>
-              <button
-                onClick={handleLogout}
-                className="rounded-md border border-gb-bg3 px-3 py-1 text-sm text-gb-fg2 hover:bg-gb-bg1 flex items-center gap-1.5"
-              >
-                <LogOut size={14} />
-                Logout
-              </button>
-            </div>
-          )}
+    <div className="min-h-screen bg-gb-bg0 flex flex-col">
+      {/* Navbar */}
+      <nav className="border-b-2 border-gb-fg0 bg-gb-bg0">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+          <span className="text-xl font-bold text-gb-fg0">FinTrack</span>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="nb-btn rounded-sm bg-gb-bg0 px-4 py-2 text-sm font-bold text-gb-fg0 hover:nb-btn-press"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/login?register=1"
+              className="nb-btn rounded-sm bg-gb-fg0 px-4 py-2 text-sm font-bold text-gb-bg0 hover:nb-btn-press"
+            >
+              Get Started
+            </Link>
+          </div>
         </div>
-      </header>
+      </nav>
 
-      <main className="max-w-7xl mx-auto px-4 py-6 flex-1 min-h-0">
-        <div className="flex flex-col lg:flex-row gap-6 h-full">
-          {/* Sidebar */}
-          <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4 min-h-0">
-            {/* Tab toggle */}
-            <div className="flex rounded-lg border border-gb-bg3 overflow-hidden shrink-0">
-              {([
-                { key: "loans" as const, icon: Landmark, label: "Loans", active: "bg-gb-blue text-gb-bg0" },
-                { key: "bills" as const, icon: Receipt, label: "Bills", active: "bg-gb-orange text-gb-bg0" },
-                { key: "income" as const, icon: TrendingUp, label: "Income", active: "bg-gb-green text-gb-bg0" },
-                { key: "savings" as const, icon: PiggyBank, label: "Savings", active: "bg-gb-purple text-gb-bg0" },
-              ]).map(({ key, icon: Icon, label, active }) => (
-                <button
-                  key={key}
-                  onClick={() => setSidebarTab(key)}
-                  title={label}
-                  className={`flex-1 py-2 text-xs font-medium transition-colors flex flex-col items-center gap-0.5 ${
-                    sidebarTab === key ? active : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
-                  }`}
-                >
-                  <Icon size={16} />
-                  {label}
-                </button>
-              ))}
-            </div>
+      {/* Hero */}
+      <section className="py-20 px-4">
+        <div className="max-w-3xl mx-auto text-center">
+          <h1 className="text-5xl sm:text-6xl font-bold text-gb-fg0 leading-tight mb-6">
+            Take control of your{" "}
+            <span className="bg-gb-yellow px-2 inline-block -rotate-1">finances</span>
+          </h1>
+          <p className="text-lg text-gb-fg2 mb-10 max-w-xl mx-auto">
+            Track loans, bills, income, and savings in one place.
+            See everything on a calendar. Know exactly where your money goes.
+          </p>
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <Link
+              href="/login?register=1"
+              className="nb-btn rounded-sm bg-gb-blue px-6 py-3 text-base font-bold text-gb-bg0 hover:nb-btn-press inline-flex items-center gap-2"
+            >
+              Get Started Free
+              <ArrowRight size={18} />
+            </Link>
+            <Link
+              href="/api/auth/google"
+              className="nb-btn rounded-sm bg-gb-bg0 px-6 py-3 text-base font-bold text-gb-fg0 hover:nb-btn-press inline-flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Sign in with Google
+            </Link>
+          </div>
+        </div>
+      </section>
 
-            {/* Add button */}
-            {sidebarTab === "loans" && (
-              <button
-                onClick={() => setShowAddModal("loan")}
-                className="w-full rounded-lg border border-gb-blue/40 bg-gb-blue/10 px-4 py-2.5 text-sm font-medium text-gb-blue hover:bg-gb-blue/20 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <Plus size={14} />
-                Add Loan
-              </button>
-            )}
-            {sidebarTab === "bills" && (
-              <button
-                onClick={() => setShowAddModal("bill")}
-                className="w-full rounded-lg border border-gb-orange/40 bg-gb-orange/10 px-4 py-2.5 text-sm font-medium text-gb-orange hover:bg-gb-orange/20 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <Plus size={14} />
-                Add Bill
-              </button>
-            )}
-            {sidebarTab === "income" && (
-              <button
-                onClick={() => setShowAddModal("income")}
-                className="w-full rounded-lg border border-gb-green/40 bg-gb-green/10 px-4 py-2.5 text-sm font-medium text-gb-green hover:bg-gb-green/20 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <Plus size={14} />
-                Add Income
-              </button>
-            )}
-            {sidebarTab === "savings" && (
-              <button
-                onClick={() => setShowAddModal("savings")}
-                className="w-full rounded-lg border border-gb-purple/40 bg-gb-purple/10 px-4 py-2.5 text-sm font-medium text-gb-purple hover:bg-gb-purple/20 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <Plus size={14} />
-                Add Account
-              </button>
-            )}
-
-            {/* Scrollable list — fills remaining sidebar space */}
-            <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 flex-1 min-h-0 overflow-y-auto">
-              {sidebarTab === "loans" && (
-                loading ? (
-                  <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
-                ) : (
-                  <LoanList
-                    loans={loans}
-                    payments={payments}
-                    onEdit={setEditingLoan}
-                    onDelete={handleDelete}
-                  />
-                )
-              )}
-              {sidebarTab === "bills" && (
-                billsLoading ? (
-                  <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
-                ) : (
-                  <BillList
-                    bills={bills}
-                    onEdit={setEditingBill}
-                    onDelete={handleBillDelete}
-                    filterType="expense"
-                  />
-                )
-              )}
-              {sidebarTab === "income" && (
-                billsLoading ? (
-                  <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
-                ) : (
-                  <BillList
-                    bills={bills}
-                    onEdit={setEditingBill}
-                    onDelete={handleBillDelete}
-                    filterType="income"
-                  />
-                )
-              )}
-              {sidebarTab === "savings" && (
-                savingsLoading ? (
-                  <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
-                ) : (
-                  <SavingsList
-                    accounts={savingsAccounts}
-                    onEdit={setEditingSavings}
-                    onDelete={handleSavingsDelete}
-                  />
-                )
-              )}
-            </div>
-
-            {/* Donut chart — current month summary */}
-            {hasChartData && (
-              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 shrink-0">
-                <div className="text-xs font-medium text-gb-fg4 text-center mb-1">
-                  {format(currentMonth, "MMMM yyyy")}
+      {/* Features */}
+      <section className="py-16 px-4 bg-gb-bg1">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold text-gb-fg0 text-center mb-12">
+            Everything you need to manage your money
+          </h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { icon: Landmark, title: "Loans", desc: "Track balances, payments, and schedules for all your loans.", color: "bg-gb-blue" },
+              { icon: Receipt, title: "Bills", desc: "Never miss a bill. Track recurring expenses and one-time payments.", color: "bg-gb-orange" },
+              { icon: PiggyBank, title: "Savings", desc: "Monitor your savings accounts and watch your balance grow.", color: "bg-gb-purple" },
+              { icon: CalendarDays, title: "Calendar", desc: "See all your financial obligations on a single calendar view.", color: "bg-gb-green" },
+            ].map(({ icon: Icon, title, desc, color }) => (
+              <div key={title} className="nb-card rounded-sm bg-gb-bg0 p-6">
+                <div className={`${color} w-10 h-10 flex items-center justify-center mb-4 border-2 border-gb-fg0`}>
+                  <Icon size={20} className="text-gb-bg0" />
                 </div>
-                <DonutChart
-                  loanTotal={monthSummary.loanTotal}
-                  billTotal={monthSummary.billTotal}
-                  incomeTotal={monthSummary.incomeTotal}
-                  size={160}
-                />
+                <h3 className="font-bold text-gb-fg0 text-lg mb-2">{title}</h3>
+                <p className="text-sm text-gb-fg2">{desc}</p>
               </div>
-            )}
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* Total savings summary */}
-            {savingsAccounts.length > 0 && (
-              <div className="rounded-lg border border-gb-purple/30 bg-gb-purple/5 p-4 shrink-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="rounded-full bg-gb-purple/15 p-1.5">
-                    <PiggyBank size={16} className="text-gb-purple" />
-                  </div>
-                  <span className="text-xs font-medium text-gb-fg3 uppercase tracking-wide">Total Savings</span>
+      {/* How it works */}
+      <section className="py-16 px-4">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold text-gb-fg0 text-center mb-12">
+            How it works
+          </h2>
+          <div className="grid sm:grid-cols-3 gap-8">
+            {[
+              { step: "1", title: "Sign up", desc: "Create an account with email or Google. Takes 10 seconds." },
+              { step: "2", title: "Add your finances", desc: "Add your loans, bills, income sources, and savings accounts." },
+              { step: "3", title: "Track everything", desc: "View your financial calendar, mark payments, and stay on top of it all." },
+            ].map(({ step, title, desc }) => (
+              <div key={step} className="text-center">
+                <div className="nb-card inline-flex items-center justify-center w-12 h-12 bg-gb-yellow font-bold text-xl text-gb-fg0 rounded-sm mb-4">
+                  {step}
                 </div>
-                <div className="text-2xl font-bold text-gb-purple">
-                  ₱{totalSavings.toLocaleString()}
-                </div>
-                <div className="text-[11px] text-gb-fg4 mt-1">
-                  across {savingsAccounts.length} account{savingsAccounts.length !== 1 ? "s" : ""}
-                </div>
+                <h3 className="font-bold text-gb-fg0 text-lg mb-2">{title}</h3>
+                <p className="text-sm text-gb-fg2">{desc}</p>
               </div>
-            )}
-          </div>
-
-          {/* Calendar */}
-          <div className="flex-1 bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 min-h-0 overflow-y-auto">
-            <Calendar
-              loans={loans}
-              payments={payments}
-              bills={bills}
-              billPayments={billPayments}
-              currentMonth={currentMonth}
-              onMonthChange={setCurrentMonth}
-              onRecordPayment={recordPayment}
-              onUndoPayment={undoPayment}
-              onRecordBillPayment={recordBillPayment}
-              onUndoBillPayment={undoBillPayment}
-            />
+            ))}
           </div>
         </div>
-      </main>
+      </section>
 
-      {/* Add Loan Modal */}
-      {showAddModal === "loan" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddModal(null)}>
-          <div className="absolute inset-0 bg-gb-fg0/30" />
-          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
-            <LoanForm onSubmit={handleSubmit} />
-          </div>
+      {/* CTA */}
+      <section className="py-16 px-4 bg-gb-fg0">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-gb-bg0 mb-4">
+            Start tracking for free
+          </h2>
+          <p className="text-gb-bg3 mb-8">
+            No credit card required. Set up your finances in minutes.
+          </p>
+          <Link
+            href="/login?register=1"
+            className="nb-btn rounded-sm bg-gb-yellow px-8 py-3 text-base font-bold text-gb-fg0 hover:nb-btn-press inline-flex items-center gap-2 border-gb-bg0"
+          >
+            Get Started
+            <ArrowRight size={18} />
+          </Link>
         </div>
-      )}
+      </section>
 
-      {/* Add Bill Modal */}
-      {showAddModal === "bill" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddModal(null)}>
-          <div className="absolute inset-0 bg-gb-fg0/30" />
-          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
-            <BillForm onSubmit={handleBillSubmit} defaultType="expense" />
-          </div>
+      {/* Footer */}
+      <footer className="border-t-2 border-gb-fg0 py-6 px-4 bg-gb-bg0">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <span className="text-sm font-bold text-gb-fg0">FinTrack</span>
+          <Link href="/login" className="text-sm text-gb-fg3 hover:text-gb-fg0 font-medium">
+            Sign in
+          </Link>
         </div>
-      )}
-
-      {/* Add Income Modal */}
-      {showAddModal === "income" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddModal(null)}>
-          <div className="absolute inset-0 bg-gb-fg0/30" />
-          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
-            <BillForm onSubmit={handleBillSubmit} defaultType="income" />
-          </div>
-        </div>
-      )}
-
-      {/* Add Savings Modal */}
-      {showAddModal === "savings" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddModal(null)}>
-          <div className="absolute inset-0 bg-gb-fg0/30" />
-          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
-            <SavingsForm onSubmit={handleSavingsSubmit} />
-          </div>
-        </div>
-      )}
-
-      {/* Edit Loan Modal */}
-      {editingLoan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setEditingLoan(null)}>
-          <div className="absolute inset-0 bg-gb-fg0/30" />
-          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
-            <LoanForm
-              key={editingLoan.id}
-              onSubmit={handleSubmit}
-              editingLoan={editingLoan}
-              onCancelEdit={() => setEditingLoan(null)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Edit Bill/Income Modal */}
-      {editingBill && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setEditingBill(null)}>
-          <div className="absolute inset-0 bg-gb-fg0/30" />
-          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
-            <BillForm
-              key={editingBill.id}
-              onSubmit={handleBillSubmit}
-              editingBill={editingBill}
-              defaultType={editingBill.type}
-              onCancelEdit={() => setEditingBill(null)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Edit Savings Modal */}
-      {editingSavings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setEditingSavings(null)}>
-          <div className="absolute inset-0 bg-gb-fg0/30" />
-          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
-            <SavingsForm
-              key={editingSavings.id}
-              onSubmit={handleSavingsSubmit}
-              editingAccount={editingSavings}
-              onCancelEdit={() => setEditingSavings(null)}
-            />
-          </div>
-        </div>
-      )}
+      </footer>
     </div>
   );
 }

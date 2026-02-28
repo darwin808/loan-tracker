@@ -63,7 +63,7 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit, defaultT
           type="text"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="w-full rounded-md border border-gb-bg3 bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-blue focus:ring-1 focus:ring-gb-blue outline-none"
+          className="w-full nb-input rounded-sm bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-blue outline-none"
           placeholder={form.type === "income" ? "e.g. Salary, Freelance" : "e.g. Netflix, Electricity"}
         />
       </div>
@@ -74,7 +74,7 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit, defaultT
           type="number"
           value={form.amount || ""}
           onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })}
-          className="w-full rounded-md border border-gb-bg3 bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-blue focus:ring-1 focus:ring-gb-blue outline-none"
+          className="w-full nb-input rounded-sm bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-blue outline-none"
           placeholder="0.00"
           min="0"
           step="0.01"
@@ -86,7 +86,7 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit, defaultT
         <select
           value={form.frequency}
           onChange={(e) => setForm({ ...form, frequency: e.target.value as BillFrequency })}
-          className="w-full rounded-md border border-gb-bg3 bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-blue focus:ring-1 focus:ring-gb-blue outline-none"
+          className="w-full nb-input rounded-sm bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-blue outline-none"
         >
           <option value="once">Once</option>
           <option value="daily">Daily</option>
@@ -103,7 +103,7 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit, defaultT
           type="date"
           value={form.startDate}
           onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-          className="w-full rounded-md border border-gb-bg3 bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-blue focus:ring-1 focus:ring-gb-blue outline-none"
+          className="w-full nb-input rounded-sm bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-blue outline-none"
         />
       </div>
 
@@ -113,7 +113,7 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit, defaultT
         <button
           type="submit"
           disabled={submitting}
-          className="flex-1 rounded-md bg-gb-blue px-4 py-2 text-sm font-medium text-gb-bg0 hover:bg-gb-blue-dim disabled:opacity-50 flex items-center justify-center gap-1.5"
+          className="flex-1 nb-btn rounded-sm bg-gb-blue px-4 py-2 text-sm font-bold text-gb-bg0 hover:nb-btn-press disabled:opacity-50 flex items-center justify-center gap-1.5"
         >
           <Check size={14} />
           {submitting ? "Saving..." : editingBill ? "Update" : form.type === "income" ? "Add Income" : "Add Bill"}
@@ -122,7 +122,7 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit, defaultT
           <button
             type="button"
             onClick={onCancelEdit}
-            className="rounded-md border border-gb-bg3 px-4 py-2 text-sm font-medium text-gb-fg2 hover:bg-gb-bg1"
+            className="nb-btn rounded-sm bg-gb-bg0 px-4 py-2 text-sm font-bold text-gb-fg2 hover:nb-btn-press"
           >
             Cancel
           </button>

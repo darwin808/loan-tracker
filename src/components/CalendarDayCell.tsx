@@ -49,7 +49,7 @@ export default function CalendarDayCell({
 
   return (
     <div
-      className={`min-h-[80px] border border-gb-bg2 p-1 select-none ${
+      className={`min-h-[80px] border-2 border-gb-fg0 p-1 select-none ${
         selected
           ? "bg-gb-blue-bg"
           : inMonth
@@ -73,7 +73,7 @@ export default function CalendarDayCell({
       <div
         className={`text-xs font-medium mb-0.5 ${
           today
-            ? "bg-gb-orange text-gb-bg0 w-5 h-5 rounded-full flex items-center justify-center"
+            ? "bg-gb-orange text-gb-bg0 w-5 h-5 flex items-center justify-center font-bold"
             : inMonth
             ? "text-gb-fg1"
             : "text-gb-bg4"

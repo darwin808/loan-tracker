@@ -25,11 +25,16 @@ export async function POST(request: Request) {
   const password = typeof body.password === "string" ? body.password : "";
   if (password.length < 8) errors.push("Password must be at least 8 characters");
 
+  const email = typeof body.email === "string" && body.email.trim() ? body.email.trim().toLowerCase() : null;
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.push("Invalid email format");
+  }
+
   if (errors.length > 0) {
     return NextResponse.json({ errors }, { status: 400 });
   }
 
-  // Check uniqueness
+  // Check username uniqueness
   const existing = await db.execute({
     sql: "SELECT id FROM users WHERE username = ?",
     args: [username],
@@ -38,10 +43,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ errors: ["Username already taken"] }, { status: 409 });
   }
 
+  // Check email uniqueness
+  if (email) {
+    const emailExists = await db.execute({
+      sql: "SELECT id FROM users WHERE email = ?",
+      args: [email],
+    });
+    if (emailExists.rows.length > 0) {
+      return NextResponse.json({ errors: ["Email already in use"] }, { status: 409 });
+    }
+  }
+
   const passwordHash = await hashPassword(password);
   const result = await db.execute({
-    sql: "INSERT INTO users (username, password_hash) VALUES (?, ?)",
-    args: [username, passwordHash],
+    sql: "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)",
+    args: [username, passwordHash, email],
   });
   const userId = Number(result.lastInsertRowid);
 
@@ -55,11 +71,11 @@ export async function POST(request: Request) {
   }
 
   const token = await createSession(userId);
-  const res = NextResponse.json({ id: userId, username, createdAt: new Date().toISOString() }, { status: 201 });
+  const res = NextResponse.json({ id: userId, username, email, createdAt: new Date().toISOString() }, { status: 201 });
   res.cookies.set("session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     path: "/",
     maxAge: 30 * 24 * 60 * 60,
   });
