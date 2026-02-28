@@ -117,10 +117,10 @@ export default function DashboardPage() {
                 <div className="bg-gb-blue p-1.5 rounded-sm">
                   <Landmark size={16} className="text-gb-bg0" />
                 </div>
-                <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Total Loans</span>
+                <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Loans This Month</span>
               </div>
               <div className="text-2xl font-bold text-gb-blue-dim">
-                {fmt(totalLoans)}
+                {fmt(monthSummary.loanTotal)}
               </div>
             </div>
 
