@@ -61,7 +61,7 @@ function LoginForm() {
     <div className="min-h-screen bg-gb-bg1 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="bg-gb-bg0 nb-card rounded-sm p-6">
-          <Link href="/" className="text-xl font-bold text-gb-fg0 mb-1 block">FinTrack</Link>
+          <Link href="/" className="text-xl font-bold text-gb-fg0 mb-1 block">FinTrak</Link>
           <p className="text-sm text-gb-fg4 mb-6">
             {isRegister ? "Create an account" : "Track your loans, bills, and savings"}
           </p>

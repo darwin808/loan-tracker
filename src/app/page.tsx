@@ -1,13 +1,32 @@
 import Link from "next/link";
 import { Landmark, Receipt, PiggyBank, CalendarDays, ArrowRight } from "lucide-react";
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "FinTrak",
+  url: "https://fintrak.one",
+  description: "Track loans, bills, income, and savings. Free personal finance tracker with calendar view, payment scheduling, and multi-currency support.",
+  applicationCategory: "FinanceApplication",
+  operatingSystem: "Web",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+};
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gb-bg0 flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Navbar */}
       <nav className="border-b-2 border-gb-fg0 bg-gb-bg0 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <span className="text-xl font-bold text-gb-fg0">FinTrack</span>
+          <span className="text-xl font-bold text-gb-fg0">FinTrak</span>
           <div className="flex items-center gap-3">
             <Link
               href="/login"
