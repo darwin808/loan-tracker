@@ -34,23 +34,14 @@ export default function BillList({ bills, onEdit, onDelete }: BillListProps) {
         return (
           <div
             key={bill.id}
-            className="rounded-md border border-gb-bg3 bg-gb-bg0 p-3"
+            className="rounded-md border border-gb-bg3 bg-gb-bg0 p-3 space-y-1"
           >
-            <div className="flex items-center gap-3">
-              <span className={`h-3 w-3 rounded-full shrink-0 ${color.dot}`} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-gb-fg1 text-sm truncate">
-                    {bill.name}
-                  </span>
-                  <span className={`text-xs px-1.5 py-0.5 rounded ${color.bg} ${color.text}`}>
-                    {FREQUENCY_LABELS[bill.frequency]}
-                  </span>
-                </div>
-                <div className="text-xs text-gb-fg4">
-                  ₱{bill.amount.toLocaleString()}/{bill.frequency === "yearly" ? "yr" : bill.frequency === "monthly" ? "mo" : bill.frequency === "biweekly" ? "2wk" : "wk"}
-                  &middot; from {bill.startDate}
-                </div>
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className={`h-3 w-3 rounded-full shrink-0 ${color.dot}`} />
+                <span className="font-medium text-gb-fg1 text-sm break-words">
+                  {bill.name}
+                </span>
               </div>
               <div className="flex gap-1 shrink-0">
                 <button
@@ -66,6 +57,15 @@ export default function BillList({ bills, onEdit, onDelete }: BillListProps) {
                   Delete
                 </button>
               </div>
+            </div>
+            <div className="flex items-center gap-2 pl-5 text-xs text-gb-fg4">
+              <span className={`px-1.5 py-0.5 rounded ${color.bg} ${color.text}`}>
+                {FREQUENCY_LABELS[bill.frequency]}
+              </span>
+              <span>
+                ₱{bill.amount.toLocaleString()}/{bill.frequency === "yearly" ? "yr" : bill.frequency === "monthly" ? "mo" : bill.frequency === "biweekly" ? "2wk" : "wk"}
+              </span>
+              <span>&middot; from {bill.startDate}</span>
             </div>
           </div>
         );
