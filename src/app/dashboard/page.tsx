@@ -152,7 +152,7 @@ export default function DashboardPage() {
 
       {/* Donut Chart (1/2) + Calendar (1/2) */}
       <div className="flex-1 min-h-0 px-6 pb-6">
-        <div className="h-full grid grid-cols-2 gap-6">
+        <div className="h-full grid grid-cols-3 gap-6">
           {/* Donut Chart */}
           <div className="bg-gb-bg0 nb-card rounded-sm p-6 overflow-y-auto flex flex-col items-center justify-center">
             {hasChartData ? (
@@ -173,7 +173,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Calendar */}
-          <div className="bg-gb-bg0 nb-card rounded-sm p-6 overflow-y-auto">
+          <div className="col-span-2 bg-gb-bg0 nb-card rounded-sm p-6 overflow-y-auto">
             <Calendar
               loans={loans}
               payments={payments}

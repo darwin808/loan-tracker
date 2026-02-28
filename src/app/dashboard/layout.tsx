@@ -41,10 +41,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }`}
       >
         {/* Logo */}
-        <div className={`mb-6 flex items-center gap-2 ${collapsed ? "" : "w-full px-4"}`}>
+        <Link href="/dashboard" className={`mb-6 flex items-center gap-2 ${collapsed ? "" : "w-full px-4"}`}>
           <Image src="/favicon-32x32.png" alt="FinTrack" width={28} height={28} />
           {!collapsed && <span className="text-sm font-bold text-gb-bg0 truncate">FinTrack</span>}
-        </div>
+        </Link>
 
         {/* Nav Links */}
         <div className={`flex flex-col gap-1 flex-1 ${collapsed ? "items-center" : "w-full px-2"}`}>

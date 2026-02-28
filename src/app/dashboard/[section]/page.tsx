@@ -125,7 +125,7 @@ export default function SectionPage() {
       </header>
 
       {/* Content Area */}
-      <div className="flex-1 min-h-0 px-8 py-6">
+      <div className="flex-1 min-h-0 px-10 py-8">
         <div className="h-full overflow-y-auto bg-gb-bg0 nb-card rounded-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-gb-fg0">All {config.title}</h2>
