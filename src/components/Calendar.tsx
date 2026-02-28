@@ -14,6 +14,7 @@ import {
   isSameMonth,
   isToday,
 } from "date-fns";
+import { ChevronLeft, ChevronRight, CalendarDays, LayoutGrid, Calendar as CalendarIcon } from "lucide-react";
 import CalendarDayCell, { type DayPayment } from "./CalendarDayCell";
 import PaymentDialog, { type PaymentDialogData } from "./PaymentDialog";
 import DayOverviewDialog from "./DayOverviewDialog";
@@ -162,9 +163,9 @@ export default function Calendar({ loans, payments, bills, billPayments, current
                 : subMonths(currentMonth, 1)
             )
           }
-          className="px-3 py-1.5 text-sm rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2"
+          className="p-1.5 rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2"
         >
-          Prev
+          <ChevronLeft size={18} />
         </button>
         <h2 className="text-lg font-semibold text-gb-fg1">
           {view === "month" ? format(currentMonth, "MMMM yyyy") : currentYear.toString()}
@@ -172,15 +173,17 @@ export default function Calendar({ loans, payments, bills, billPayments, current
         <div className="flex gap-2">
           <button
             onClick={() => setCurrentMonth(new Date())}
-            className="px-3 py-1.5 text-sm rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2"
+            className="px-3 py-1.5 text-sm rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2 flex items-center gap-1.5"
           >
+            <CalendarDays size={14} />
             Today
           </button>
           <button
             onClick={() => setView(view === "month" ? "year" : "month")}
-            className="px-3 py-1.5 text-sm rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2"
+            className="p-1.5 rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2"
+            title={view === "month" ? "Year view" : "Month view"}
           >
-            {view === "month" ? "Year" : "Month"}
+            {view === "month" ? <LayoutGrid size={18} /> : <CalendarIcon size={18} />}
           </button>
           <button
             onClick={() =>
@@ -190,9 +193,9 @@ export default function Calendar({ loans, payments, bills, billPayments, current
                   : addMonths(currentMonth, 1)
               )
             }
-            className="px-3 py-1.5 text-sm rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2"
+            className="p-1.5 rounded-md border border-gb-bg3 hover:bg-gb-bg1 text-gb-fg2"
           >
-            Next
+            <ChevronRight size={18} />
           </button>
         </div>
       </div>

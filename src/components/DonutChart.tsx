@@ -74,6 +74,7 @@ export default function DonutChart({ loanTotal, billTotal, incomeTotal, size = 1
               ))}
             </Pie>
             <Tooltip
+              position={{ x: size / 2, y: -10 }}
               content={({ payload }) => {
                 if (!payload || payload.length === 0) return null;
                 const item = payload[0];
@@ -85,6 +86,8 @@ export default function DonutChart({ loanTotal, billTotal, incomeTotal, size = 1
                       borderRadius: "6px",
                       fontSize: "12px",
                       padding: "6px 10px",
+                      whiteSpace: "nowrap",
+                      transform: "translateX(-50%)",
                     }}
                   >
                     <span style={{ color: "var(--gb-fg1)" }}>

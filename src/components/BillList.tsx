@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
+import { X } from "lucide-react";
 import type { Bill, BillType } from "@/lib/types";
 import { getBillColor, getIncomeColor } from "@/lib/colors";
 
@@ -65,7 +66,7 @@ export default function BillList({ bills, onEdit, onDelete, filterType }: BillLi
               className="absolute top-1.5 right-1.5 w-5 h-5 flex items-center justify-center rounded text-gb-fg4 hover:text-gb-red hover:bg-gb-red-bg text-sm leading-none"
               title="Delete bill"
             >
-              &times;
+              <X size={12} />
             </button>
             <div className="px-3 py-2.5 pr-7">
               <div className="flex items-center justify-between mb-1.5">

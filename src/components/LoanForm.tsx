@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check } from "lucide-react";
 import type { Loan, LoanInput, Frequency } from "@/lib/types";
 
 interface LoanFormProps {
@@ -137,8 +138,9 @@ export default function LoanForm({ onSubmit, editingLoan, onCancelEdit }: LoanFo
         <button
           type="submit"
           disabled={submitting}
-          className="flex-1 rounded-md bg-gb-blue px-4 py-2 text-sm font-medium text-gb-bg0 hover:bg-gb-blue-dim disabled:opacity-50"
+          className="flex-1 rounded-md bg-gb-blue px-4 py-2 text-sm font-medium text-gb-bg0 hover:bg-gb-blue-dim disabled:opacity-50 flex items-center justify-center gap-1.5"
         >
+          <Check size={14} />
           {submitting ? "Saving..." : editingLoan ? "Update" : "Add Loan"}
         </button>
         {editingLoan && onCancelEdit && (

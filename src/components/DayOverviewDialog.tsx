@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import LoanIndicator from "./LoanIndicator";
 import type { DayPayment } from "./CalendarDayCell";
 
@@ -20,9 +21,9 @@ export default function DayOverviewDialog({ date, payments, onPaymentClick, onCl
           <h3 className="font-medium text-gb-fg1 text-sm">{date}</h3>
           <button
             onClick={onClose}
-            className="text-gb-fg4 hover:text-gb-fg2 text-lg leading-none"
+            className="text-gb-fg4 hover:text-gb-fg2"
           >
-            &times;
+            <X size={16} />
           </button>
         </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CheckCircle, Undo2, X } from "lucide-react";
 import type { LoanColor } from "@/lib/colors";
 
 export interface PaymentDialogData {
@@ -89,14 +90,16 @@ export default function PaymentDialog({ data, onRecord, onUndo, onRecordBillPaym
               <button
                 onClick={handleUndo}
                 disabled={submitting}
-                className="flex-1 rounded-md border border-gb-red/30 px-3 py-2 text-sm text-gb-red hover:bg-gb-red/10 disabled:opacity-50"
+                className="flex-1 rounded-md border border-gb-red/30 px-3 py-2 text-sm text-gb-red hover:bg-gb-red/10 disabled:opacity-50 flex items-center justify-center gap-1.5"
               >
+                <Undo2 size={14} />
                 Undo Payment
               </button>
               <button
                 onClick={onClose}
-                className="rounded-md border border-gb-bg3 px-3 py-2 text-sm text-gb-fg2 hover:bg-gb-bg1"
+                className="rounded-md border border-gb-bg3 px-3 py-2 text-sm text-gb-fg2 hover:bg-gb-bg1 flex items-center justify-center gap-1.5"
               >
+                <X size={14} />
                 Close
               </button>
             </div>
@@ -121,8 +124,9 @@ export default function PaymentDialog({ data, onRecord, onUndo, onRecordBillPaym
               <button
                 onClick={handleRecord}
                 disabled={submitting || (!isBill && amount <= 0)}
-                className="flex-1 rounded-md bg-gb-blue px-3 py-2 text-sm font-medium text-gb-bg0 hover:bg-gb-blue-dim disabled:opacity-50"
+                className="flex-1 rounded-md bg-gb-blue px-3 py-2 text-sm font-medium text-gb-bg0 hover:bg-gb-blue-dim disabled:opacity-50 flex items-center justify-center gap-1.5"
               >
+                <CheckCircle size={14} />
                 {submitting ? "Saving..." : "Mark Paid"}
               </button>
               <button

@@ -72,6 +72,17 @@ async function runMigrations() {
   } catch {
     // Column already exists — ignore
   }
+
+  // Savings table
+  await db.execute(
+    `CREATE TABLE IF NOT EXISTS savings (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name       TEXT NOT NULL,
+      balance    REAL NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`
+  );
 }
 
 export const initDb = runMigrations();

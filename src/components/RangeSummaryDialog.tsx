@@ -1,4 +1,5 @@
 import { format, parseISO } from "date-fns";
+import { X } from "lucide-react";
 import type { DayPayment } from "./CalendarDayCell";
 import DonutChart from "./DonutChart";
 
@@ -61,9 +62,9 @@ export default function RangeSummaryDialog({ startDate, endDate, paymentMap, onC
             </h3>
             <button
               onClick={onClose}
-              className="text-gb-fg4 hover:text-gb-fg2 text-lg leading-none"
+              className="text-gb-fg4 hover:text-gb-fg2"
             >
-              &times;
+              <X size={16} />
             </button>
           </div>
           <div className="flex items-center gap-4 text-xs text-gb-fg3">

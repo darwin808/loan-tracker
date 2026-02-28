@@ -77,3 +77,17 @@ export interface BillScheduleEntry {
   paid: boolean;
   paidAmount: number | null;
 }
+
+// ── Savings ─────────────────────────────────────────────
+
+export interface SavingsAccount {
+  id: number;
+  name: string;
+  balance: number;
+  createdAt: string;
+}
+
+export interface SavingsInput {
+  name: string;
+  balance: number;
+}

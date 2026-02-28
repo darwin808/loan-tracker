@@ -3,17 +3,24 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { startOfMonth, endOfMonth, format } from "date-fns";
+import { Landmark, Receipt, TrendingUp, PiggyBank, Plus, LogOut } from "lucide-react";
 import { useLoans } from "@/hooks/useLoans";
 import { useBills } from "@/hooks/useBills";
+import { useSavings } from "@/hooks/useSavings";
 import { getPaymentSchedule } from "@/lib/payments";
 import { getBillSchedule } from "@/lib/bill-schedule";
 import LoanForm from "@/components/LoanForm";
 import LoanList from "@/components/LoanList";
 import BillForm from "@/components/BillForm";
 import BillList from "@/components/BillList";
+import SavingsForm from "@/components/SavingsForm";
+import SavingsList from "@/components/SavingsList";
 import Calendar from "@/components/Calendar";
 import DonutChart from "@/components/DonutChart";
-import type { Loan, LoanInput, Bill, BillInput, User } from "@/lib/types";
+import type { Loan, LoanInput, Bill, BillInput, SavingsAccount, SavingsInput, User } from "@/lib/types";
+
+type SidebarTab = "loans" | "bills" | "income" | "savings";
+type AddModal = "loan" | "bill" | "income" | "savings" | null;
 
 export default function Home() {
   const router = useRouter();
@@ -21,10 +28,13 @@ export default function Home() {
     useLoans();
   const { bills, billPayments, loading: billsLoading, addBill, editBill, removeBill, recordBillPayment, undoBillPayment } =
     useBills();
+  const { accounts: savingsAccounts, loading: savingsLoading, addAccount, editAccount, removeAccount } =
+    useSavings();
   const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
   const [editingBill, setEditingBill] = useState<Bill | null>(null);
-  const [sidebarTab, setSidebarTab] = useState<"loans" | "bills" | "income">("loans");
-  const [showAddModal, setShowAddModal] = useState<"loan" | "bill" | "income" | null>(null);
+  const [editingSavings, setEditingSavings] = useState<SavingsAccount | null>(null);
+  const [sidebarTab, setSidebarTab] = useState<SidebarTab>("loans");
+  const [showAddModal, setShowAddModal] = useState<AddModal>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [user, setUser] = useState<User | null>(null);
 
@@ -75,6 +85,21 @@ export default function Home() {
     if (editingBill?.id === id) setEditingBill(null);
   };
 
+  const handleSavingsSubmit = async (input: SavingsInput) => {
+    if (editingSavings) {
+      await editAccount(editingSavings.id, input);
+      setEditingSavings(null);
+    } else {
+      await addAccount(input);
+      setShowAddModal(null);
+    }
+  };
+
+  const handleSavingsDelete = async (id: number) => {
+    await removeAccount(id);
+    if (editingSavings?.id === id) setEditingSavings(null);
+  };
+
   // Monthly summary for donut chart in sidebar — follows calendar month
   const monthSummary = useMemo(() => {
     const mStart = startOfMonth(currentMonth);
@@ -110,6 +135,7 @@ export default function Home() {
   }, [loans, payments, bills, billPayments, currentMonth]);
 
   const hasChartData = monthSummary.loanTotal > 0 || monthSummary.billTotal > 0 || monthSummary.incomeTotal > 0;
+  const totalSavings = savingsAccounts.reduce((sum, a) => sum + a.balance, 0);
 
   return (
     <div className="min-h-screen bg-gb-bg1">
@@ -121,8 +147,9 @@ export default function Home() {
               <span className="text-sm text-gb-fg3">{user.username}</span>
               <button
                 onClick={handleLogout}
-                className="rounded-md border border-gb-bg3 px-3 py-1 text-sm text-gb-fg2 hover:bg-gb-bg1"
+                className="rounded-md border border-gb-bg3 px-3 py-1 text-sm text-gb-fg2 hover:bg-gb-bg1 flex items-center gap-1.5"
               >
+                <LogOut size={14} />
                 Logout
               </button>
             </div>
@@ -138,33 +165,47 @@ export default function Home() {
             <div className="flex rounded-lg border border-gb-bg3 overflow-hidden">
               <button
                 onClick={() => setSidebarTab("loans")}
-                className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                className={`flex-1 px-3 py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
                   sidebarTab === "loans"
                     ? "bg-gb-blue text-gb-bg0"
                     : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
                 }`}
               >
+                <Landmark size={14} />
                 Loans
               </button>
               <button
                 onClick={() => setSidebarTab("bills")}
-                className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                className={`flex-1 px-3 py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
                   sidebarTab === "bills"
                     ? "bg-gb-orange text-gb-bg0"
                     : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
                 }`}
               >
+                <Receipt size={14} />
                 Bills
               </button>
               <button
                 onClick={() => setSidebarTab("income")}
-                className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                className={`flex-1 px-3 py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
                   sidebarTab === "income"
                     ? "bg-gb-green text-gb-bg0"
                     : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
                 }`}
               >
+                <TrendingUp size={14} />
                 Income
+              </button>
+              <button
+                onClick={() => setSidebarTab("savings")}
+                className={`flex-1 px-3 py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                  sidebarTab === "savings"
+                    ? "bg-gb-purple text-gb-bg0"
+                    : "bg-gb-bg0 text-gb-fg3 hover:bg-gb-bg1"
+                }`}
+              >
+                <PiggyBank size={14} />
+                Savings
               </button>
             </div>
 
@@ -172,25 +213,37 @@ export default function Home() {
             {sidebarTab === "loans" && (
               <button
                 onClick={() => setShowAddModal("loan")}
-                className="w-full rounded-lg border border-gb-blue/40 bg-gb-blue/10 px-4 py-2.5 text-sm font-medium text-gb-blue hover:bg-gb-blue/20 transition-colors"
+                className="w-full rounded-lg border border-gb-blue/40 bg-gb-blue/10 px-4 py-2.5 text-sm font-medium text-gb-blue hover:bg-gb-blue/20 transition-colors flex items-center justify-center gap-1.5"
               >
-                + Add Loan
+                <Plus size={14} />
+                Add Loan
               </button>
             )}
             {sidebarTab === "bills" && (
               <button
                 onClick={() => setShowAddModal("bill")}
-                className="w-full rounded-lg border border-gb-orange/40 bg-gb-orange/10 px-4 py-2.5 text-sm font-medium text-gb-orange hover:bg-gb-orange/20 transition-colors"
+                className="w-full rounded-lg border border-gb-orange/40 bg-gb-orange/10 px-4 py-2.5 text-sm font-medium text-gb-orange hover:bg-gb-orange/20 transition-colors flex items-center justify-center gap-1.5"
               >
-                + Add Bill
+                <Plus size={14} />
+                Add Bill
               </button>
             )}
             {sidebarTab === "income" && (
               <button
                 onClick={() => setShowAddModal("income")}
-                className="w-full rounded-lg border border-gb-green/40 bg-gb-green/10 px-4 py-2.5 text-sm font-medium text-gb-green hover:bg-gb-green/20 transition-colors"
+                className="w-full rounded-lg border border-gb-green/40 bg-gb-green/10 px-4 py-2.5 text-sm font-medium text-gb-green hover:bg-gb-green/20 transition-colors flex items-center justify-center gap-1.5"
               >
-                + Add Income
+                <Plus size={14} />
+                Add Income
+              </button>
+            )}
+            {sidebarTab === "savings" && (
+              <button
+                onClick={() => setShowAddModal("savings")}
+                className="w-full rounded-lg border border-gb-purple/40 bg-gb-purple/10 px-4 py-2.5 text-sm font-medium text-gb-purple hover:bg-gb-purple/20 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Plus size={14} />
+                Add Account
               </button>
             )}
 
@@ -237,6 +290,19 @@ export default function Home() {
                 )}
               </div>
             )}
+            {sidebarTab === "savings" && (
+              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 max-h-[400px] overflow-y-auto">
+                {savingsLoading ? (
+                  <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
+                ) : (
+                  <SavingsList
+                    accounts={savingsAccounts}
+                    onEdit={setEditingSavings}
+                    onDelete={handleSavingsDelete}
+                  />
+                )}
+              </div>
+            )}
 
             {/* Donut chart — current month summary */}
             {hasChartData && (
@@ -250,6 +316,19 @@ export default function Home() {
                   incomeTotal={monthSummary.incomeTotal}
                   size={160}
                 />
+              </div>
+            )}
+
+            {/* Total savings summary */}
+            {savingsAccounts.length > 0 && (
+              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 px-4 py-3 flex items-center justify-between">
+                <span className="text-sm text-gb-fg3 flex items-center gap-1.5">
+                  <PiggyBank size={14} className="text-gb-purple" />
+                  Total Savings
+                </span>
+                <span className="text-sm font-semibold text-gb-purple">
+                  ₱{totalSavings.toLocaleString()}
+                </span>
               </div>
             )}
           </div>
@@ -302,6 +381,16 @@ export default function Home() {
         </div>
       )}
 
+      {/* Add Savings Modal */}
+      {showAddModal === "savings" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddModal(null)}>
+          <div className="absolute inset-0 bg-gb-fg0/30" />
+          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
+            <SavingsForm onSubmit={handleSavingsSubmit} />
+          </div>
+        </div>
+      )}
+
       {/* Edit Loan Modal */}
       {editingLoan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setEditingLoan(null)}>
@@ -328,6 +417,21 @@ export default function Home() {
               editingBill={editingBill}
               defaultType={editingBill.type}
               onCancelEdit={() => setEditingBill(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Edit Savings Modal */}
+      {editingSavings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setEditingSavings(null)}>
+          <div className="absolute inset-0 bg-gb-fg0/30" />
+          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
+            <SavingsForm
+              key={editingSavings.id}
+              onSubmit={handleSavingsSubmit}
+              editingAccount={editingSavings}
+              onCancelEdit={() => setEditingSavings(null)}
             />
           </div>
         </div>
