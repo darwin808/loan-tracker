@@ -130,14 +130,12 @@ function Shell({ children }: { children: React.ReactNode }) {
             target="_blank"
             rel="noopener noreferrer"
             title="Support FinTrak"
-            className={`flex items-center rounded-md transition-all ${
-              collapsed
-                ? "w-10 h-10 justify-center text-gb-red hover:scale-110"
-                : "gap-2.5 px-3 py-2.5 bg-gb-red/15 hover:bg-gb-red/25 text-gb-red"
+            className={`flex items-center gap-3 rounded-md text-gb-red hover:text-gb-red-dim transition-colors ${
+              collapsed ? "w-10 h-10 justify-center" : "px-3 py-2"
             }`}
           >
-            <Heart size={collapsed ? 20 : 16} className="animate-pulse" fill="currentColor" />
-            {!collapsed && <span className="text-sm font-semibold">Buy me a coffee</span>}
+            <Heart size={20} className="animate-pulse" fill="currentColor" />
+            {!collapsed && <span className="text-sm font-medium">Donate</span>}
           </a>
           <button
             onClick={() => setCollapsed((c) => !c)}
@@ -195,7 +193,7 @@ function Shell({ children }: { children: React.ReactNode }) {
             className="flex flex-col items-center justify-center gap-0.5 text-gb-red"
           >
             <Heart size={18} className="animate-pulse" fill="currentColor" />
-            <span className="text-[10px] font-semibold">Donate</span>
+            <span className="text-[10px] font-medium">Donate</span>
           </a>
         </div>
       </nav>
