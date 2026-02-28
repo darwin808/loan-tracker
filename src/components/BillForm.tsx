@@ -86,6 +86,7 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit }: BillFo
           onChange={(e) => setForm({ ...form, frequency: e.target.value as BillFrequency })}
           className="w-full rounded-md border border-gb-bg3 bg-gb-bg0 px-3 py-2 text-sm text-gb-fg1 focus:border-gb-blue focus:ring-1 focus:ring-gb-blue outline-none"
         >
+          <option value="biweekly">Every 2 Weeks</option>
           <option value="monthly">Monthly</option>
           <option value="yearly">Yearly</option>
         </select>

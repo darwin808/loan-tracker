@@ -16,7 +16,7 @@ export async function GET() {
   }
 }
 
-const VALID_FREQUENCIES: BillFrequency[] = ["monthly", "yearly"];
+const VALID_FREQUENCIES: BillFrequency[] = ["biweekly", "monthly", "yearly"];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function POST(request: Request) {

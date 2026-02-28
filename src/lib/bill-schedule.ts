@@ -1,4 +1,4 @@
-import { addMonths, addYears, endOfMonth, getDate, format, min } from "date-fns";
+import { addDays, addMonths, addYears, endOfMonth, getDate, format, min } from "date-fns";
 import type { Bill, BillPayment, BillScheduleEntry } from "./types";
 
 /**
@@ -40,6 +40,8 @@ export function getBillSchedule(bill: Bill, billPayments: BillPayment[], maxDate
 
 function dateAtOffset(start: Date, offset: number, frequency: string): Date {
   switch (frequency) {
+    case "biweekly":
+      return addDays(start, offset * 14);
     case "monthly": {
       const dayOfMonth = getDate(start);
       const next = addMonths(start, offset);
