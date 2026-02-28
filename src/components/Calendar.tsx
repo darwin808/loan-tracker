@@ -18,6 +18,7 @@ import CalendarDayCell, { type DayPayment } from "./CalendarDayCell";
 import PaymentDialog, { type PaymentDialogData } from "./PaymentDialog";
 import DayOverviewDialog from "./DayOverviewDialog";
 import RangeSummaryDialog from "./RangeSummaryDialog";
+import DonutChart from "./DonutChart";
 import { getPaymentSchedule } from "@/lib/payments";
 import { getBillSchedule } from "@/lib/bill-schedule";
 import { getLoanColor, getBillColor, getIncomeColor } from "@/lib/colors";
@@ -219,36 +220,15 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
         </div>
       </div>
 
-      {/* Monthly summary bar */}
+      {/* Monthly summary with donut chart */}
       {view === "month" && (monthSummary.loanTotal > 0 || monthSummary.billTotal > 0 || monthSummary.incomeTotal > 0) && (
-        <div className="flex items-center gap-4 mb-4 px-3 py-2 rounded-md bg-gb-bg1 border border-gb-bg2 text-xs">
-          {monthSummary.loanTotal > 0 && (
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-gb-blue" />
-              <span className="text-gb-fg3">Loans</span>
-              <span className="font-medium text-gb-fg1">₱{monthSummary.loanTotal.toLocaleString()}</span>
-            </span>
-          )}
-          {monthSummary.billTotal > 0 && (
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-gb-orange" />
-              <span className="text-gb-fg3">Bills</span>
-              <span className="font-medium text-gb-fg1">₱{monthSummary.billTotal.toLocaleString()}</span>
-            </span>
-          )}
-          {monthSummary.incomeTotal > 0 && (
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-gb-green" />
-              <span className="text-gb-fg3">Income</span>
-              <span className="font-medium text-gb-fg1">₱{monthSummary.incomeTotal.toLocaleString()}</span>
-            </span>
-          )}
-          <span className="ml-auto flex items-center gap-1">
-            <span className="text-gb-fg4">Net</span>
-            <span className={`font-semibold ${monthSummary.net >= 0 ? "text-gb-green" : "text-gb-red"}`}>
-              {monthSummary.net >= 0 ? "+" : ""}₱{monthSummary.net.toLocaleString()}
-            </span>
-          </span>
+        <div className="mb-4 rounded-md bg-gb-bg1 border border-gb-bg2">
+          <DonutChart
+            loanTotal={monthSummary.loanTotal}
+            billTotal={monthSummary.billTotal}
+            incomeTotal={monthSummary.incomeTotal}
+            size={110}
+          />
         </div>
       )}
 

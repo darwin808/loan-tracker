@@ -20,3 +20,11 @@ export function getBillColor(_billId: number): LoanColor {
 export function getIncomeColor(): LoanColor {
   return INCOME_COLOR;
 }
+
+// Hex values matching CSS variables in globals.css — used by Recharts/inline styles
+export const CHART_COLORS = {
+  loan: "var(--color-gb-blue)",
+  bill: "var(--color-gb-orange)",
+  income: "var(--color-gb-green)",
+  red: "var(--color-gb-red)",
+};
