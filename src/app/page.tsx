@@ -138,8 +138,8 @@ export default function Home() {
   const totalSavings = savingsAccounts.reduce((sum, a) => sum + a.balance, 0);
 
   return (
-    <div className="min-h-screen bg-gb-bg1">
-      <header className="bg-gb-bg0 border-b border-gb-bg3">
+    <div className="h-screen bg-gb-bg1 flex flex-col overflow-hidden">
+      <header className="bg-gb-bg0 border-b border-gb-bg3 shrink-0">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-xl font-bold text-gb-fg0">Loan Tracker</h1>
           {user && (
@@ -157,12 +157,12 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex flex-col lg:flex-row gap-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 flex-1 min-h-0">
+        <div className="flex flex-col lg:flex-row gap-6 h-full">
           {/* Sidebar */}
-          <div className="w-full lg:w-80 shrink-0 space-y-4">
+          <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4 min-h-0">
             {/* Tab toggle */}
-            <div className="flex rounded-lg border border-gb-bg3 overflow-hidden">
+            <div className="flex rounded-lg border border-gb-bg3 overflow-hidden shrink-0">
               {([
                 { key: "loans" as const, icon: Landmark, label: "Loans", active: "bg-gb-blue text-gb-bg0" },
                 { key: "bills" as const, icon: Receipt, label: "Bills", active: "bg-gb-orange text-gb-bg0" },
@@ -221,8 +221,8 @@ export default function Home() {
               </button>
             )}
 
-            {/* Scrollable list — fixed height container */}
-            <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 h-[400px] overflow-y-auto">
+            {/* Scrollable list — fills remaining sidebar space */}
+            <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 flex-1 min-h-0 overflow-y-auto">
               {sidebarTab === "loans" && (
                 loading ? (
                   <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
@@ -274,7 +274,7 @@ export default function Home() {
 
             {/* Donut chart — current month summary */}
             {hasChartData && (
-              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
+              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 shrink-0">
                 <div className="text-xs font-medium text-gb-fg4 text-center mb-1">
                   {format(currentMonth, "MMMM yyyy")}
                 </div>
@@ -289,7 +289,7 @@ export default function Home() {
 
             {/* Total savings summary */}
             {savingsAccounts.length > 0 && (
-              <div className="rounded-lg border border-gb-purple/30 bg-gb-purple/5 p-4">
+              <div className="rounded-lg border border-gb-purple/30 bg-gb-purple/5 p-4 shrink-0">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="rounded-full bg-gb-purple/15 p-1.5">
                     <PiggyBank size={16} className="text-gb-purple" />
@@ -307,7 +307,7 @@ export default function Home() {
           </div>
 
           {/* Calendar */}
-          <div className="flex-1 bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
+          <div className="flex-1 bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 min-h-0 overflow-y-auto">
             <Calendar
               loans={loans}
               payments={payments}
