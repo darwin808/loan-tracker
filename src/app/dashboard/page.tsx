@@ -164,7 +164,7 @@ export default function DashboardPage() {
                   loanTotal={monthSummary.loanTotal}
                   billTotal={monthSummary.billTotal}
                   incomeTotal={monthSummary.incomeTotal}
-                  size={240}
+                  size={320}
                 />
               </>
             ) : (
