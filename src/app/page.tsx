@@ -1,14 +1,18 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { startOfMonth, endOfMonth, format } from "date-fns";
 import { useLoans } from "@/hooks/useLoans";
 import { useBills } from "@/hooks/useBills";
+import { getPaymentSchedule } from "@/lib/payments";
+import { getBillSchedule } from "@/lib/bill-schedule";
 import LoanForm from "@/components/LoanForm";
 import LoanList from "@/components/LoanList";
 import BillForm from "@/components/BillForm";
 import BillList from "@/components/BillList";
 import Calendar from "@/components/Calendar";
+import DonutChart from "@/components/DonutChart";
 import type { Loan, LoanInput, Bill, BillInput, User } from "@/lib/types";
 
 export default function Home() {
@@ -20,6 +24,7 @@ export default function Home() {
   const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
   const [editingBill, setEditingBill] = useState<Bill | null>(null);
   const [sidebarTab, setSidebarTab] = useState<"loans" | "bills" | "income">("loans");
+  const [showAddModal, setShowAddModal] = useState<"loan" | "bill" | "income" | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -45,6 +50,7 @@ export default function Home() {
       setEditingLoan(null);
     } else {
       await addLoan(input);
+      setShowAddModal(null);
     }
   };
 
@@ -59,6 +65,7 @@ export default function Home() {
       setEditingBill(null);
     } else {
       await addBill(input);
+      setShowAddModal(null);
     }
   };
 
@@ -66,6 +73,43 @@ export default function Home() {
     await removeBill(id);
     if (editingBill?.id === id) setEditingBill(null);
   };
+
+  // Monthly summary for donut chart in sidebar
+  const monthSummary = useMemo(() => {
+    const now = new Date();
+    const mStart = startOfMonth(now);
+    const mEnd = endOfMonth(now);
+    const startStr = format(mStart, "yyyy-MM-dd");
+    const endStr = format(mEnd, "yyyy-MM-dd");
+    const maxDate = new Date(now.getFullYear() + 1, 11, 31);
+
+    let loanTotal = 0;
+    let billTotal = 0;
+    let incomeTotal = 0;
+
+    loans.forEach((loan) => {
+      const schedule = getPaymentSchedule(loan, payments);
+      for (const entry of schedule) {
+        if (entry.date >= startStr && entry.date <= endStr) {
+          loanTotal += entry.scheduledAmount;
+        }
+      }
+    });
+
+    bills.forEach((bill) => {
+      const schedule = getBillSchedule(bill, billPayments, maxDate);
+      for (const entry of schedule) {
+        if (entry.date >= startStr && entry.date <= endStr) {
+          if (bill.type === "income") incomeTotal += entry.scheduledAmount;
+          else billTotal += entry.scheduledAmount;
+        }
+      }
+    });
+
+    return { loanTotal, billTotal, incomeTotal };
+  }, [loans, payments, bills, billPayments]);
+
+  const hasChartData = monthSummary.loanTotal > 0 || monthSummary.billTotal > 0 || monthSummary.incomeTotal > 0;
 
   return (
     <div className="min-h-screen bg-gb-bg1">
@@ -124,62 +168,89 @@ export default function Home() {
               </button>
             </div>
 
+            {/* Add button */}
             {sidebarTab === "loans" && (
-              <>
-                <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
-                  <LoanForm onSubmit={handleSubmit} />
-                </div>
-                <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
-                  {loading ? (
-                    <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
-                  ) : (
-                    <LoanList
-                      loans={loans}
-                      payments={payments}
-                      onEdit={setEditingLoan}
-                      onDelete={handleDelete}
-                    />
-                  )}
-                </div>
-              </>
+              <button
+                onClick={() => setShowAddModal("loan")}
+                className="w-full rounded-lg border border-gb-blue/40 bg-gb-blue/10 px-4 py-2.5 text-sm font-medium text-gb-blue hover:bg-gb-blue/20 transition-colors"
+              >
+                + Add Loan
+              </button>
             )}
             {sidebarTab === "bills" && (
-              <>
-                <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
-                  <BillForm onSubmit={handleBillSubmit} />
-                </div>
-                <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
-                  {billsLoading ? (
-                    <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
-                  ) : (
-                    <BillList
-                      bills={bills}
-                      onEdit={setEditingBill}
-                      onDelete={handleBillDelete}
-                      filterType="expense"
-                    />
-                  )}
-                </div>
-              </>
+              <button
+                onClick={() => setShowAddModal("bill")}
+                className="w-full rounded-lg border border-gb-orange/40 bg-gb-orange/10 px-4 py-2.5 text-sm font-medium text-gb-orange hover:bg-gb-orange/20 transition-colors"
+              >
+                + Add Bill
+              </button>
             )}
             {sidebarTab === "income" && (
-              <>
-                <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
-                  <BillForm onSubmit={handleBillSubmit} defaultType="income" />
+              <button
+                onClick={() => setShowAddModal("income")}
+                className="w-full rounded-lg border border-gb-green/40 bg-gb-green/10 px-4 py-2.5 text-sm font-medium text-gb-green hover:bg-gb-green/20 transition-colors"
+              >
+                + Add Income
+              </button>
+            )}
+
+            {/* Scrollable list */}
+            {sidebarTab === "loans" && (
+              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 max-h-[400px] overflow-y-auto">
+                {loading ? (
+                  <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
+                ) : (
+                  <LoanList
+                    loans={loans}
+                    payments={payments}
+                    onEdit={setEditingLoan}
+                    onDelete={handleDelete}
+                  />
+                )}
+              </div>
+            )}
+            {sidebarTab === "bills" && (
+              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 max-h-[400px] overflow-y-auto">
+                {billsLoading ? (
+                  <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
+                ) : (
+                  <BillList
+                    bills={bills}
+                    onEdit={setEditingBill}
+                    onDelete={handleBillDelete}
+                    filterType="expense"
+                  />
+                )}
+              </div>
+            )}
+            {sidebarTab === "income" && (
+              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4 max-h-[400px] overflow-y-auto">
+                {billsLoading ? (
+                  <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
+                ) : (
+                  <BillList
+                    bills={bills}
+                    onEdit={setEditingBill}
+                    onDelete={handleBillDelete}
+                    filterType="income"
+                  />
+                )}
+              </div>
+            )}
+
+            {/* Donut chart — current month summary */}
+            {hasChartData && (
+              <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
+                <div className="text-xs font-medium text-gb-fg4 text-center mb-1">
+                  {format(new Date(), "MMMM yyyy")}
                 </div>
-                <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
-                  {billsLoading ? (
-                    <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
-                  ) : (
-                    <BillList
-                      bills={bills}
-                      onEdit={setEditingBill}
-                      onDelete={handleBillDelete}
-                      filterType="income"
-                    />
-                  )}
-                </div>
-              </>
+                <DonutChart
+                  loanTotal={monthSummary.loanTotal}
+                  billTotal={monthSummary.billTotal}
+                  incomeTotal={monthSummary.incomeTotal}
+                  size={160}
+                />
+              </div>
             )}
           </div>
 
@@ -198,6 +269,36 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      {/* Add Loan Modal */}
+      {showAddModal === "loan" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddModal(null)}>
+          <div className="absolute inset-0 bg-gb-fg0/30" />
+          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
+            <LoanForm onSubmit={handleSubmit} />
+          </div>
+        </div>
+      )}
+
+      {/* Add Bill Modal */}
+      {showAddModal === "bill" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddModal(null)}>
+          <div className="absolute inset-0 bg-gb-fg0/30" />
+          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
+            <BillForm onSubmit={handleBillSubmit} defaultType="expense" />
+          </div>
+        </div>
+      )}
+
+      {/* Add Income Modal */}
+      {showAddModal === "income" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddModal(null)}>
+          <div className="absolute inset-0 bg-gb-fg0/30" />
+          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
+            <BillForm onSubmit={handleBillSubmit} defaultType="income" />
+          </div>
+        </div>
+      )}
 
       {/* Edit Loan Modal */}
       {editingLoan && (

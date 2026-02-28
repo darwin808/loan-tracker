@@ -27,7 +27,7 @@ export default function LoanList({ loans, payments, onEdit, onDelete }: LoanList
   if (loans.length === 0) {
     return (
       <div className="text-sm text-gb-fg4 text-center py-8">
-        No loans yet. Add one above.
+        No loans yet.
       </div>
     );
   }

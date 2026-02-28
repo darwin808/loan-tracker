@@ -18,7 +18,6 @@ import CalendarDayCell, { type DayPayment } from "./CalendarDayCell";
 import PaymentDialog, { type PaymentDialogData } from "./PaymentDialog";
 import DayOverviewDialog from "./DayOverviewDialog";
 import RangeSummaryDialog from "./RangeSummaryDialog";
-import DonutChart from "./DonutChart";
 import { getPaymentSchedule } from "@/lib/payments";
 import { getBillSchedule } from "@/lib/bill-schedule";
 import { getLoanColor, getBillColor, getIncomeColor } from "@/lib/colors";
@@ -150,29 +149,6 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
     });
   };
 
-  // Monthly summary totals
-  const monthSummary = useMemo(() => {
-    const monthStart = startOfMonth(currentMonth);
-    const monthEnd = endOfMonth(currentMonth);
-    const startStr = format(monthStart, "yyyy-MM-dd");
-    const endStr = format(monthEnd, "yyyy-MM-dd");
-
-    let loanTotal = 0;
-    let billTotal = 0;
-    let incomeTotal = 0;
-
-    paymentMap.forEach((dayPayments, dateStr) => {
-      if (dateStr < startStr || dateStr > endStr) return;
-      for (const p of dayPayments) {
-        if (p.type === "loan") loanTotal += p.scheduledAmount;
-        else if (p.type === "bill") billTotal += p.scheduledAmount;
-        else if (p.type === "income") incomeTotal += p.scheduledAmount;
-      }
-    });
-
-    return { loanTotal, billTotal, incomeTotal, net: incomeTotal - loanTotal - billTotal };
-  }, [paymentMap, currentMonth]);
-
   return (
     <div>
       {/* Navigation */}
@@ -219,18 +195,6 @@ export default function Calendar({ loans, payments, bills, billPayments, onRecor
           </button>
         </div>
       </div>
-
-      {/* Monthly summary with donut chart */}
-      {view === "month" && (monthSummary.loanTotal > 0 || monthSummary.billTotal > 0 || monthSummary.incomeTotal > 0) && (
-        <div className="mb-4 rounded-md bg-gb-bg1 border border-gb-bg2">
-          <DonutChart
-            loanTotal={monthSummary.loanTotal}
-            billTotal={monthSummary.billTotal}
-            incomeTotal={monthSummary.incomeTotal}
-            size={110}
-          />
-        </div>
-      )}
 
       {view === "month" ? (
         <MonthView

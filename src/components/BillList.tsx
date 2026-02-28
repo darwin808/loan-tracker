@@ -39,7 +39,7 @@ export default function BillList({ bills, onEdit, onDelete, filterType }: BillLi
   if (filtered.length === 0) {
     return (
       <div className="text-sm text-gb-fg4 text-center py-8">
-        No {isIncome ? "income" : "bills"} yet. Add one above.
+        No {isIncome ? "income" : "bills"} yet.
       </div>
     );
   }
