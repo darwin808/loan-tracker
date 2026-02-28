@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     description:
       "Track loans, bills, income, and savings. Free personal finance tracker.",
   },
+  verification: {
+    google: "pSNBprVz0WwO9uS1kluUIewbOf99APRygCG4lvr7lUQ",
+  },
   icons: {
     icon: "/favicon.ico",
   },

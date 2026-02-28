@@ -107,8 +107,8 @@ export default function SectionPage() {
     <>
       {/* Header */}
       <header className="bg-gb-bg0 border-b-2 border-gb-fg0 shrink-0">
-        <div className="px-6 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gb-fg0">{config.title}</h1>
+        <div className="px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
+          <h1 className="text-lg md:text-xl font-bold text-gb-fg0">{config.title}</h1>
           {user && (
             <div className="flex items-center gap-3">
               <span className="text-sm text-gb-fg3">{user.username}</span>
@@ -125,8 +125,8 @@ export default function SectionPage() {
       </header>
 
       {/* Content Area */}
-      <div className="flex-1 min-h-0 px-10 py-8">
-        <div className="h-full overflow-y-auto bg-gb-bg0 nb-card rounded-sm p-6">
+      <div className="flex-1 min-h-0 px-4 md:px-10 py-4 md:py-8">
+        <div className="h-full overflow-y-auto bg-gb-bg0 nb-card rounded-sm p-4 md:p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-gb-fg0">All {config.title}</h2>
             <button
@@ -195,7 +195,7 @@ export default function SectionPage() {
       {showAddModal === "loan" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddModal(null)}>
           <div className="absolute inset-0 bg-gb-fg0/40" />
-          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-96" onClick={(e) => e.stopPropagation()}>
+          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-[calc(100%-2rem)] max-w-96 mx-4" onClick={(e) => e.stopPropagation()}>
             <LoanForm onSubmit={handleSubmit} />
           </div>
         </div>
@@ -204,7 +204,7 @@ export default function SectionPage() {
       {showAddModal === "bill" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddModal(null)}>
           <div className="absolute inset-0 bg-gb-fg0/40" />
-          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-96" onClick={(e) => e.stopPropagation()}>
+          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-[calc(100%-2rem)] max-w-96 mx-4" onClick={(e) => e.stopPropagation()}>
             <BillForm onSubmit={handleBillSubmit} defaultType="expense" />
           </div>
         </div>
@@ -213,7 +213,7 @@ export default function SectionPage() {
       {showAddModal === "income" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddModal(null)}>
           <div className="absolute inset-0 bg-gb-fg0/40" />
-          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-96" onClick={(e) => e.stopPropagation()}>
+          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-[calc(100%-2rem)] max-w-96 mx-4" onClick={(e) => e.stopPropagation()}>
             <BillForm onSubmit={handleBillSubmit} defaultType="income" />
           </div>
         </div>
@@ -222,7 +222,7 @@ export default function SectionPage() {
       {showAddModal === "savings" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddModal(null)}>
           <div className="absolute inset-0 bg-gb-fg0/40" />
-          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-96" onClick={(e) => e.stopPropagation()}>
+          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-[calc(100%-2rem)] max-w-96 mx-4" onClick={(e) => e.stopPropagation()}>
             <SavingsForm onSubmit={handleSavingsSubmit} />
           </div>
         </div>
@@ -231,7 +231,7 @@ export default function SectionPage() {
       {editingLoan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setEditingLoan(null)}>
           <div className="absolute inset-0 bg-gb-fg0/40" />
-          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-96" onClick={(e) => e.stopPropagation()}>
+          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-[calc(100%-2rem)] max-w-96 mx-4" onClick={(e) => e.stopPropagation()}>
             <LoanForm
               key={editingLoan.id}
               onSubmit={handleSubmit}
@@ -245,7 +245,7 @@ export default function SectionPage() {
       {editingBill && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setEditingBill(null)}>
           <div className="absolute inset-0 bg-gb-fg0/40" />
-          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-96" onClick={(e) => e.stopPropagation()}>
+          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-[calc(100%-2rem)] max-w-96 mx-4" onClick={(e) => e.stopPropagation()}>
             <BillForm
               key={editingBill.id}
               onSubmit={handleBillSubmit}
@@ -260,7 +260,7 @@ export default function SectionPage() {
       {editingSavings && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setEditingSavings(null)}>
           <div className="absolute inset-0 bg-gb-fg0/40" />
-          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-96" onClick={(e) => e.stopPropagation()}>
+          <div className="relative bg-gb-bg0 nb-card rounded-sm p-4 w-[calc(100%-2rem)] max-w-96 mx-4" onClick={(e) => e.stopPropagation()}>
             <SavingsForm
               key={editingSavings.id}
               onSubmit={handleSavingsSubmit}

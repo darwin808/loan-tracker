@@ -1,3 +1,4 @@
+import { useCurrency } from "@/lib/currency";
 import type { LoanColor } from "@/lib/colors";
 
 interface LoanIndicatorProps {
@@ -19,6 +20,7 @@ export default function LoanIndicator({
   color,
   onClick,
 }: LoanIndicatorProps) {
+  const { symbol } = useCurrency();
   const displayAmount = paid ? paidAmount! : scheduledAmount;
   const isPartial = paid && paidAmount !== null && paidAmount < scheduledAmount;
   const interactive = paid || canPay;
@@ -36,18 +38,18 @@ export default function LoanIndicator({
       }`}
       title={
         paid
-          ? `${name}: ₱${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} (paid)`
+          ? `${name}: ${symbol}${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} (paid)`
           : canPay
-          ? `${name}: ₱${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} — click to pay`
-          : `${name}: ₱${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} — pay previous dates first`
+          ? `${name}: ${symbol}${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} — click to pay`
+          : `${name}: ${symbol}${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} — pay previous dates first`
       }
     >
       {paid && <span className="mr-0.5">&#10003;</span>}
       <span className={`font-medium ${paid ? "line-through" : ""}`}>
-        ₱{displayAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+        {symbol}{displayAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
       </span>
       {isPartial && (
-        <span className="opacity-60">/₱{scheduledAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+        <span className="opacity-60">/{symbol}{scheduledAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
       )}
       <span className={`ml-0.5 ${paid ? "opacity-50" : "opacity-70"}`}>{name}</span>
     </button>

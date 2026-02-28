@@ -4,6 +4,7 @@ import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { X } from "lucide-react";
 import type { Loan, Payment } from "@/lib/types";
+import { useCurrency } from "@/lib/currency";
 import { getLoanColor } from "@/lib/colors";
 import { getPaymentSchedule, getEndDate, getTotalPaid } from "@/lib/payments";
 
@@ -24,6 +25,7 @@ const RATE_SUFFIX: Record<string, string> = {
 
 export default function LoanList({ loans, payments, onEdit, onDelete }: LoanListProps) {
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
+  const { fmt } = useCurrency();
 
   if (loans.length === 0) {
     return (
@@ -41,7 +43,7 @@ export default function LoanList({ loans, payments, onEdit, onDelete }: LoanList
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gb-fg1">Your Loans</h2>
         <span className="text-sm font-medium text-gb-fg3">
-          ₱{totalPaidAll.toLocaleString()} / ₱{totalAmount.toLocaleString()}
+          {fmt(totalPaidAll)} / {fmt(totalAmount)}
         </span>
       </div>
       {loans.map((loan) => {
@@ -74,13 +76,13 @@ export default function LoanList({ loans, payments, onEdit, onDelete }: LoanList
               <div className="flex items-center justify-between mb-1.5">
                 <span className="font-medium text-gb-fg0 text-sm">{loan.name}</span>
                 <span className="font-semibold text-gb-fg1 text-sm">
-                  ₱{loan.paymentAmount.toLocaleString()}{RATE_SUFFIX[loan.frequency]}
+                  {fmt(loan.paymentAmount)}{RATE_SUFFIX[loan.frequency]}
                 </span>
               </div>
               <div className="mb-2">
                 <div className="flex justify-between text-xs text-gb-fg4 mb-1">
                   <span>{paidCount}/{schedule.length} paid</span>
-                  <span>₱{remaining.toLocaleString()} left</span>
+                  <span>{fmt(remaining)} left</span>
                 </div>
                 <div className="h-1.5 bg-gb-bg2 overflow-hidden">
                   <div

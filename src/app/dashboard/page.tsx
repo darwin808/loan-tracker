@@ -12,6 +12,7 @@ import { getBillSchedule } from "@/lib/bill-schedule";
 import Calendar from "@/components/Calendar";
 import DonutChart from "@/components/DonutChart";
 import type { User } from "@/lib/types";
+import { useCurrency } from "@/lib/currency";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function DashboardPage() {
   const { accounts: savingsAccounts } = useSavings();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [user, setUser] = useState<User | null>(null);
+  const { fmt } = useCurrency();
 
   useEffect(() => {
     fetch("/api/auth/me").then((res) => {
@@ -80,8 +82,8 @@ export default function DashboardPage() {
     <>
       {/* Header */}
       <header className="bg-gb-bg0 border-b-2 border-gb-fg0 shrink-0">
-        <div className="px-6 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gb-fg0">Dashboard</h1>
+        <div className="px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
+          <h1 className="text-lg md:text-xl font-bold text-gb-fg0">Dashboard</h1>
           {user && (
             <div className="flex items-center gap-3">
               <span className="text-sm text-gb-fg3">{user.username}</span>
@@ -98,8 +100,8 @@ export default function DashboardPage() {
       </header>
 
       {/* Summary Cards */}
-      <div className="px-6 py-4 shrink-0">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="px-4 md:px-6 py-3 md:py-4 shrink-0">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
           <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="bg-gb-blue p-1.5 rounded-sm">
@@ -108,7 +110,7 @@ export default function DashboardPage() {
               <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Total Loans</span>
             </div>
             <div className="text-2xl font-bold text-gb-blue-dim">
-              ${totalLoans.toLocaleString()}
+              {fmt(totalLoans)}
             </div>
           </div>
 
@@ -120,7 +122,7 @@ export default function DashboardPage() {
               <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Bills This Month</span>
             </div>
             <div className="text-2xl font-bold text-gb-orange-dim">
-              ${monthSummary.billTotal.toLocaleString()}
+              {fmt(monthSummary.billTotal)}
             </div>
           </div>
 
@@ -132,7 +134,7 @@ export default function DashboardPage() {
               <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Total Savings</span>
             </div>
             <div className="text-2xl font-bold text-gb-purple-dim">
-              ${totalSavings.toLocaleString()}
+              {fmt(totalSavings)}
             </div>
           </div>
 
@@ -144,17 +146,17 @@ export default function DashboardPage() {
               <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Net This Month</span>
             </div>
             <div className={`text-2xl font-bold ${netThisMonth >= 0 ? "text-gb-green-dim" : "text-gb-red-dim"}`}>
-              {netThisMonth >= 0 ? "+" : ""}${netThisMonth.toLocaleString()}
+              {netThisMonth >= 0 ? "+" : ""}{fmt(netThisMonth)}
             </div>
           </div>
         </div>
       </div>
 
       {/* Donut Chart (1/2) + Calendar (1/2) */}
-      <div className="flex-1 min-h-0 px-6 pb-6">
-        <div className="h-full grid grid-cols-3 gap-6">
+      <div className="flex-1 min-h-0 px-4 md:px-6 pb-4 md:pb-6">
+        <div className="h-full grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Donut Chart */}
-          <div className="bg-gb-bg0 nb-card rounded-sm p-6 overflow-y-auto flex flex-col items-center justify-center">
+          <div className="bg-gb-bg0 nb-card rounded-sm p-4 md:p-6 overflow-y-auto flex flex-col items-center justify-center">
             {hasChartData ? (
               <>
                 <div className="text-sm font-medium text-gb-fg4 text-center mb-3">
@@ -173,7 +175,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Calendar */}
-          <div className="col-span-2 bg-gb-bg0 nb-card rounded-sm p-6 overflow-y-auto">
+          <div className="lg:col-span-2 bg-gb-bg0 nb-card rounded-sm p-4 md:p-6 overflow-y-auto">
             <Calendar
               loans={loans}
               payments={payments}

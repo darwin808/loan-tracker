@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CheckCircle, Undo2, X } from "lucide-react";
 import type { LoanColor } from "@/lib/colors";
+import { useCurrency } from "@/lib/currency";
 
 export interface PaymentDialogData {
   type: "loan" | "bill" | "income";
@@ -25,6 +26,7 @@ interface PaymentDialogProps {
 }
 
 export default function PaymentDialog({ data, onRecord, onUndo, onRecordBillPayment, onUndoBillPayment, onClose }: PaymentDialogProps) {
+  const { fmt, currency } = useCurrency();
   const isBill = data.type === "bill" || data.type === "income";
   const [amount, setAmount] = useState(data.paidAmount ?? data.scheduledAmount);
   const [submitting, setSubmitting] = useState(false);
@@ -78,13 +80,13 @@ export default function PaymentDialog({ data, onRecord, onUndo, onRecordBillPaym
 
         <div className="text-xs text-gb-fg4 mb-1">{data.date}</div>
         <div className="text-sm text-gb-fg2 mb-3">
-          Scheduled: ₱{data.scheduledAmount.toLocaleString()}
+          Scheduled: {fmt(data.scheduledAmount)}
         </div>
 
         {data.paid ? (
           <div className="space-y-3">
             <div className="text-sm font-medium text-gb-aqua-dim">
-              Paid: ₱{data.paidAmount?.toLocaleString()}
+              Paid: {fmt(data.paidAmount ?? 0)}
             </div>
             <div className="flex gap-2">
               <button
@@ -108,7 +110,7 @@ export default function PaymentDialog({ data, onRecord, onUndo, onRecordBillPaym
           <div className="space-y-3">
             {!isBill && (
               <div>
-                <label className="block text-xs text-gb-fg3 mb-1">Amount to pay (PHP)</label>
+                <label className="block text-xs text-gb-fg3 mb-1">Amount to pay ({currency})</label>
                 <input
                   type="number"
                   value={amount || ""}

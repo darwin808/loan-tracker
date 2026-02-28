@@ -5,6 +5,7 @@ import { format, parseISO } from "date-fns";
 import { X } from "lucide-react";
 import type { Bill, BillType } from "@/lib/types";
 import { getBillColor, getIncomeColor } from "@/lib/colors";
+import { useCurrency } from "@/lib/currency";
 
 function fmtDate(d: string) { return format(parseISO(d), "MMM d, yyyy"); }
 
@@ -34,6 +35,7 @@ const RATE_SUFFIX: Record<string, string> = {
 
 export default function BillList({ bills, onEdit, onDelete, filterType }: BillListProps) {
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
+  const { fmt } = useCurrency();
   const filtered = filterType ? bills.filter((b) => b.type === filterType) : bills;
   const isIncome = filterType === "income";
 
@@ -72,7 +74,7 @@ export default function BillList({ bills, onEdit, onDelete, filterType }: BillLi
               <div className="flex items-center justify-between mb-1.5">
                 <span className="font-medium text-gb-fg0 text-sm">{bill.name}</span>
                 <span className="font-semibold text-gb-fg1 text-sm">
-                  ₱{bill.amount.toLocaleString()}
+                  {fmt(bill.amount)}
                 </span>
               </div>
               <div className="flex items-center gap-2">

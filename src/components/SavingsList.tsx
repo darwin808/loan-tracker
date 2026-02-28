@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import type { SavingsAccount } from "@/lib/types";
+import { useCurrency } from "@/lib/currency";
 
 interface SavingsListProps {
   accounts: SavingsAccount[];
@@ -12,6 +13,7 @@ interface SavingsListProps {
 
 export default function SavingsList({ accounts, onEdit, onDelete }: SavingsListProps) {
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
+  const { fmt } = useCurrency();
 
   if (accounts.length === 0) {
     return (
@@ -28,7 +30,7 @@ export default function SavingsList({ accounts, onEdit, onDelete }: SavingsListP
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gb-fg1">Your Savings</h2>
         <span className="text-sm font-medium text-gb-purple">
-          ₱{total.toLocaleString()}
+          {fmt(total)}
         </span>
       </div>
       {accounts.map((account) => (
@@ -52,7 +54,7 @@ export default function SavingsList({ accounts, onEdit, onDelete }: SavingsListP
             <div className="flex items-center justify-between">
               <span className="font-medium text-gb-fg0 text-sm">{account.name}</span>
               <span className="font-semibold text-gb-fg1 text-sm">
-                ₱{account.balance.toLocaleString()}
+                {fmt(account.balance)}
               </span>
             </div>
           </div>

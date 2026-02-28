@@ -2,6 +2,7 @@ import { format, parseISO } from "date-fns";
 import { X } from "lucide-react";
 import type { DayPayment } from "./CalendarDayCell";
 import DonutChart from "./DonutChart";
+import { useCurrency } from "@/lib/currency";
 
 function fmtDate(d: string) { return format(parseISO(d), "MMM d, yyyy"); }
 
@@ -18,6 +19,7 @@ interface RangeSummaryDialogProps {
 }
 
 export default function RangeSummaryDialog({ startDate, endDate, paymentMap, onClose }: RangeSummaryDialogProps) {
+  const { fmt } = useCurrency();
   // Collect all payments in range, chronologically
   const entries: RangeSummaryEntry[] = [];
   const current = new Date(startDate + "T00:00:00");
@@ -101,7 +103,7 @@ export default function RangeSummaryDialog({ startDate, endDate, paymentMap, onC
                     {e.payment.name}
                   </span>
                   <span className={`shrink-0 font-medium tabular-nums ${e.payment.paid ? "text-gb-fg4" : "text-gb-fg1"}`}>
-                    {e.payment.type === "income" ? "+" : ""}₱{e.payment.scheduledAmount.toLocaleString()}
+                    {e.payment.type === "income" ? "+" : ""}{fmt(e.payment.scheduledAmount)}
                   </span>
                   {e.payment.paid && (
                     <span className="text-[10px] text-gb-aqua-dim shrink-0">&#10003;</span>
@@ -116,18 +118,18 @@ export default function RangeSummaryDialog({ startDate, endDate, paymentMap, onC
         <div className="px-4 py-3 border-t border-gb-bg2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-gb-fg3">Total expenses</span>
-            <span className="font-semibold text-gb-fg0">₱{(loanTotal + billTotal).toLocaleString()}</span>
+            <span className="font-semibold text-gb-fg0">{fmt(loanTotal + billTotal)}</span>
           </div>
           {incomeTotal > 0 && (
             <div className="flex items-center justify-between text-xs mt-1">
               <span className="text-gb-fg4">Total income</span>
-              <span className="text-gb-green">+₱{incomeTotal.toLocaleString()}</span>
+              <span className="text-gb-green">+{fmt(incomeTotal)}</span>
             </div>
           )}
           {totalPaid > 0 && (
             <div className="flex items-center justify-between text-xs mt-1">
               <span className="text-gb-fg4">Already paid</span>
-              <span className="text-gb-aqua-dim">₱{totalPaid.toLocaleString()}</span>
+              <span className="text-gb-aqua-dim">{fmt(totalPaid)}</span>
             </div>
           )}
         </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check } from "lucide-react";
 import type { Loan, LoanInput, Frequency } from "@/lib/types";
+import { useCurrency } from "@/lib/currency";
 
 interface LoanFormProps {
   onSubmit: (input: LoanInput) => Promise<void>;
@@ -19,6 +20,7 @@ const EMPTY_FORM: LoanInput = {
 };
 
 export default function LoanForm({ onSubmit, editingLoan, onCancelEdit }: LoanFormProps) {
+  const { fmt, currency } = useCurrency();
   const [form, setForm] = useState<LoanInput>(
     editingLoan
       ? {
@@ -76,7 +78,7 @@ export default function LoanForm({ onSubmit, editingLoan, onCancelEdit }: LoanFo
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gb-fg2 mb-1">Total Amount (PHP)</label>
+        <label className="block text-sm font-medium text-gb-fg2 mb-1">Total Amount ({currency})</label>
         <input
           type="number"
           value={form.amount || ""}
@@ -89,7 +91,7 @@ export default function LoanForm({ onSubmit, editingLoan, onCancelEdit }: LoanFo
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gb-fg2 mb-1">Payment Amount (PHP)</label>
+        <label className="block text-sm font-medium text-gb-fg2 mb-1">Payment Amount ({currency})</label>
         <input
           type="number"
           value={form.paymentAmount || ""}
@@ -103,7 +105,7 @@ export default function LoanForm({ onSubmit, editingLoan, onCancelEdit }: LoanFo
           <p className="text-xs text-gb-fg4 mt-1">
             {numPayments} payment{numPayments !== 1 ? "s" : ""}
             {form.amount % form.paymentAmount !== 0 && (
-              <span> (last payment: ₱{(Math.round((form.amount % form.paymentAmount) * 100) / 100).toLocaleString()})</span>
+              <span> (last payment: {fmt(Math.round((form.amount % form.paymentAmount) * 100) / 100)})</span>
             )}
           </p>
         )}

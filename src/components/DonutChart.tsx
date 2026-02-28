@@ -2,6 +2,7 @@
 
 import { PieChart, Pie, Cell, Tooltip, Sector, ResponsiveContainer } from "recharts";
 import { CHART_COLORS } from "@/lib/colors";
+import { useCurrency } from "@/lib/currency";
 import type { PieSectorShapeProps } from "recharts/types/polar/Pie";
 
 interface DonutChartProps {
@@ -34,6 +35,7 @@ const SLICE_COLORS: Record<string, string> = {
 };
 
 export default function DonutChart({ loanTotal, billTotal, incomeTotal, size = 160 }: DonutChartProps) {
+  const { fmt } = useCurrency();
   const expenseTotal = loanTotal + billTotal;
   const net = incomeTotal - expenseTotal;
 
@@ -91,7 +93,7 @@ export default function DonutChart({ loanTotal, billTotal, incomeTotal, size = 1
                     }}
                   >
                     <span style={{ color: "var(--gb-fg1)" }}>
-                      {item.name}: ₱{((item.value as number) ?? 0).toLocaleString()}
+                      {item.name}: {fmt((item.value as number) ?? 0)}
                     </span>
                   </div>
                 );
@@ -103,7 +105,7 @@ export default function DonutChart({ loanTotal, billTotal, incomeTotal, size = 1
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="text-center">
             <div className={`text-sm font-bold ${net >= 0 ? "text-gb-green" : "text-gb-red"}`}>
-              {net >= 0 ? "+" : ""}₱{Math.abs(net).toLocaleString()}
+              {net >= 0 ? "+" : ""}{fmt(Math.abs(net))}
             </div>
             <div className="text-[10px] text-gb-fg4">net</div>
           </div>
@@ -116,21 +118,21 @@ export default function DonutChart({ loanTotal, billTotal, incomeTotal, size = 1
           <span className="flex items-center gap-1 whitespace-nowrap">
             <span className="h-2 w-2 rounded-full bg-gb-blue shrink-0" />
             <span className="text-gb-fg3">Loans</span>
-            <span className="font-medium text-gb-fg1">₱{loanTotal.toLocaleString()}</span>
+            <span className="font-medium text-gb-fg1">{fmt(loanTotal)}</span>
           </span>
         )}
         {billTotal > 0 && (
           <span className="flex items-center gap-1 whitespace-nowrap">
             <span className="h-2 w-2 rounded-full bg-gb-orange shrink-0" />
             <span className="text-gb-fg3">Bills</span>
-            <span className="font-medium text-gb-fg1">₱{billTotal.toLocaleString()}</span>
+            <span className="font-medium text-gb-fg1">{fmt(billTotal)}</span>
           </span>
         )}
         {net > 0 && (
           <span className="flex items-center gap-1 whitespace-nowrap">
             <span className="h-2 w-2 rounded-full bg-gb-green shrink-0" />
             <span className="text-gb-fg3">Left</span>
-            <span className="font-medium text-gb-fg1">₱{net.toLocaleString()}</span>
+            <span className="font-medium text-gb-fg1">{fmt(net)}</span>
           </span>
         )}
       </div>

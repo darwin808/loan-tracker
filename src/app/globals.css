@@ -61,3 +61,6 @@
 @utility nb-input {
   border: 2px solid var(--color-gb-fg0);
 }
+@utility safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
