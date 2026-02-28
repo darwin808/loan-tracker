@@ -90,12 +90,7 @@ export default function Home() {
           {/* Sidebar */}
           <div className="w-full lg:w-80 shrink-0 space-y-6">
             <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
-              <LoanForm
-                key={editingLoan?.id ?? "new"}
-                onSubmit={handleSubmit}
-                editingLoan={editingLoan}
-                onCancelEdit={() => setEditingLoan(null)}
-              />
+              <LoanForm onSubmit={handleSubmit} />
             </div>
             <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
               {loading ? (
@@ -110,12 +105,7 @@ export default function Home() {
               )}
             </div>
             <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
-              <BillForm
-                key={editingBill?.id ?? "new"}
-                onSubmit={handleBillSubmit}
-                editingBill={editingBill}
-                onCancelEdit={() => setEditingBill(null)}
-              />
+              <BillForm onSubmit={handleBillSubmit} />
             </div>
             <div className="bg-gb-bg0 rounded-lg border border-gb-bg3 p-4">
               {billsLoading ? (
@@ -145,6 +135,36 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      {/* Edit Loan Modal */}
+      {editingLoan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setEditingLoan(null)}>
+          <div className="absolute inset-0 bg-gb-fg0/30" />
+          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
+            <LoanForm
+              key={editingLoan.id}
+              onSubmit={handleSubmit}
+              editingLoan={editingLoan}
+              onCancelEdit={() => setEditingLoan(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Edit Bill Modal */}
+      {editingBill && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setEditingBill(null)}>
+          <div className="absolute inset-0 bg-gb-fg0/30" />
+          <div className="relative bg-gb-bg0 rounded-lg border border-gb-bg3 shadow-lg p-4 w-96" onClick={(e) => e.stopPropagation()}>
+            <BillForm
+              key={editingBill.id}
+              onSubmit={handleBillSubmit}
+              editingBill={editingBill}
+              onCancelEdit={() => setEditingBill(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
