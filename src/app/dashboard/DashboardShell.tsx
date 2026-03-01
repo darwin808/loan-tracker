@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { LayoutDashboard, Landmark, Receipt, TrendingUp, PiggyBank, LogOut, ChevronsLeft, ChevronsRight, Heart, Users, X } from "lucide-react";
+import { LayoutDashboard, Landmark, Receipt, TrendingUp, PiggyBank, LogOut, ChevronsLeft, ChevronsRight, Heart, Users, X, Menu } from "lucide-react";
 import { CurrencyProvider, useCurrency } from "@/lib/currency";
 import { ImpersonationProvider, useImpersonation } from "@/lib/impersonation";
 
@@ -30,21 +30,6 @@ function CurrencyToggle({ collapsed }: { collapsed: boolean }) {
     >
       <span className="text-xs font-bold w-5 text-center">{currency === "PHP" ? "₱" : "$"}</span>
       {!collapsed && <span className="text-sm font-medium">{currency}</span>}
-    </button>
-  );
-}
-
-function MobileCurrencyToggle() {
-  const { currency, setCurrency } = useCurrency();
-  const toggle = () => setCurrency(currency === "PHP" ? "USD" : "PHP");
-
-  return (
-    <button
-      onClick={toggle}
-      className="flex flex-col items-center justify-center gap-0.5 text-gb-bg3"
-    >
-      <span className="text-sm font-bold">{currency === "PHP" ? "₱" : "$"}</span>
-      <span className="text-[10px]">{currency}</span>
     </button>
   );
 }
@@ -146,6 +131,12 @@ function Shell({ children }: { children: React.ReactNode }) {
     localStorage.setItem("sidebar-collapsed", String(collapsed));
   }, [collapsed]);
 
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+
   useEffect(() => {
     fetch("/api/auth/me").then((r) => r.ok ? r.json() : null).then((data) => {
       if (data) {
@@ -188,6 +179,89 @@ function Shell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="h-dvh bg-gb-bg1 flex flex-col md:flex-row overflow-hidden">
+      {/* Mobile Header */}
+      <header className="md:hidden fixed top-0 inset-x-0 z-40 bg-gb-fg0 flex items-center justify-between px-4 h-12">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <Image src="/favicon-32x32.png" alt="FinTrak" width={24} height={24} />
+          <span className="text-sm font-bold text-gb-bg0">FinTrak</span>
+        </Link>
+        <button onClick={() => setDrawerOpen(true)} className="text-gb-bg3 hover:text-gb-bg0 transition-colors">
+          <Menu size={24} />
+        </button>
+      </header>
+
+      {/* Mobile Drawer Backdrop */}
+      <div
+        className={`md:hidden fixed inset-0 z-50 bg-black/50 transition-opacity duration-200 ${
+          drawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setDrawerOpen(false)}
+      />
+
+      {/* Mobile Drawer */}
+      <nav
+        className={`md:hidden fixed top-0 left-0 bottom-0 z-50 w-[240px] bg-gb-fg0 flex flex-col py-4 overflow-y-auto transition-transform duration-200 ${
+          drawerOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex items-center justify-between px-4 mb-6">
+          <Link href="/dashboard" onClick={() => setDrawerOpen(false)} className="flex items-center gap-2">
+            <Image src="/favicon-32x32.png" alt="FinTrak" width={28} height={28} />
+            <span className="text-sm font-bold text-gb-bg0">FinTrak</span>
+          </Link>
+          <button onClick={() => setDrawerOpen(false)} className="text-gb-bg3 hover:text-gb-bg0 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-1 flex-1 w-full px-2">
+          {NAV_ITEMS.map(({ href, icon: Icon, label, color }) => {
+            const isActive = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setDrawerOpen(false)}
+                className={`flex items-center gap-3 rounded-md px-3 py-2 transition-colors ${
+                  isActive
+                    ? `${color} text-gb-bg0`
+                    : "text-gb-bg3 hover:text-gb-bg0"
+                }`}
+              >
+                <Icon size={20} />
+                <span className="text-sm font-medium">{label}</span>
+              </Link>
+            );
+          })}
+        </div>
+
+        {isSuperadmin && (
+          <div className="mb-2">
+            <UserPicker collapsed={false} users={adminUsers} currentUserId={currentUserId} />
+          </div>
+        )}
+
+        <div className="flex flex-col gap-1 w-full px-2">
+          <CurrencyToggle collapsed={false} />
+          <a
+            href="https://ko-fi.com/darwinapolinario"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-md text-gb-red hover:text-gb-red-dim transition-colors px-3 py-2"
+          >
+            <Heart size={20} className="animate-pulse" fill="currentColor" />
+            <span className="text-sm font-medium">Donate</span>
+          </a>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 rounded-md text-gb-bg3 hover:text-gb-bg0 transition-colors px-3 py-2"
+          >
+            <LogOut size={20} />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
+        </div>
+      </nav>
+
       {/* Desktop Sidebar — hidden on mobile */}
       <nav
         className={`hidden md:flex bg-gb-fg0 flex-col items-center py-4 shrink-0 transition-all duration-200 ${
@@ -266,43 +340,11 @@ function Shell({ children }: { children: React.ReactNode }) {
       </nav>
 
       {/* Main Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-0 pb-14 md:pb-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 pt-12 md:pt-0">
         <ImpersonationBanner />
         {children}
       </div>
 
-      {/* Mobile Bottom Nav — hidden on desktop */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-gb-fg0 border-t-2 border-gb-fg1 safe-bottom">
-        <div className="flex items-stretch justify-around px-1 py-1">
-          {NAV_ITEMS.map(({ href, icon: Icon, label, color }) => {
-            const isActive = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-md min-w-0 ${
-                  isActive
-                    ? `${color} text-gb-bg0`
-                    : "text-gb-bg3"
-                }`}
-              >
-                <Icon size={18} />
-                <span className="text-[10px] font-medium truncate">{label}</span>
-              </Link>
-            );
-          })}
-          <MobileCurrencyToggle />
-          <a
-            href="https://ko-fi.com/darwinapolinario"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center gap-0.5 text-gb-red"
-          >
-            <Heart size={18} className="animate-pulse" fill="currentColor" />
-            <span className="text-[10px] font-medium">Donate</span>
-          </a>
-        </div>
-      </nav>
     </div>
   );
 }
