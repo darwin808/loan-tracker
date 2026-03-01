@@ -11,14 +11,16 @@ import { getPaymentSchedule } from "@/lib/payments";
 import { getBillSchedule } from "@/lib/bill-schedule";
 import Calendar from "@/components/Calendar";
 import DonutChart from "@/components/DonutChart";
+import Skeleton from "@/components/Skeleton";
 import type { User } from "@/lib/types";
 import { useCurrency } from "@/lib/currency";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { loans, payments, recordPayment, undoPayment } = useLoans();
-  const { bills, billPayments, recordBillPayment, undoBillPayment } = useBills();
-  const { accounts: savingsAccounts } = useSavings();
+  const { loans, payments, loading: loansLoading, recordPayment, undoPayment } = useLoans();
+  const { bills, billPayments, loading: billsLoading, recordBillPayment, undoBillPayment } = useBills();
+  const { accounts: savingsAccounts, loading: savingsLoading } = useSavings();
+  const dataLoading = loansLoading || billsLoading || savingsLoading;
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [user, setUser] = useState<User | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -112,89 +114,139 @@ export default function DashboardPage() {
         {/* Summary Cards */}
         <div className="px-4 md:px-6 py-3 md:py-4 md:shrink-0">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
-            <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="bg-gb-blue p-1.5 rounded-sm">
-                  <Landmark size={16} className="text-gb-bg0" />
+            {dataLoading ? (
+              <>
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Skeleton className="w-[28px] h-[28px]" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                    <Skeleton className="h-8 w-28" />
+                  </div>
+                ))}
+              </>
+            ) : (
+              <>
+                <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="bg-gb-blue p-1.5 rounded-sm">
+                      <Landmark size={16} className="text-gb-bg0" />
+                    </div>
+                    <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Loans This Month</span>
+                  </div>
+                  <div className="text-2xl font-bold text-gb-blue-dim">
+                    {fmt(monthSummary.loanTotal)}
+                  </div>
                 </div>
-                <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Loans This Month</span>
-              </div>
-              <div className="text-2xl font-bold text-gb-blue-dim">
-                {fmt(monthSummary.loanTotal)}
-              </div>
-            </div>
 
-            <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="bg-gb-orange p-1.5 rounded-sm">
-                  <Receipt size={16} className="text-gb-bg0" />
+                <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="bg-gb-orange p-1.5 rounded-sm">
+                      <Receipt size={16} className="text-gb-bg0" />
+                    </div>
+                    <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Bills This Month</span>
+                  </div>
+                  <div className="text-2xl font-bold text-gb-orange-dim">
+                    {fmt(monthSummary.billTotal)}
+                  </div>
                 </div>
-                <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Bills This Month</span>
-              </div>
-              <div className="text-2xl font-bold text-gb-orange-dim">
-                {fmt(monthSummary.billTotal)}
-              </div>
-            </div>
 
-            <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="bg-gb-purple p-1.5 rounded-sm">
-                  <PiggyBank size={16} className="text-gb-bg0" />
+                <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="bg-gb-purple p-1.5 rounded-sm">
+                      <PiggyBank size={16} className="text-gb-bg0" />
+                    </div>
+                    <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Total Savings</span>
+                  </div>
+                  <div className="text-2xl font-bold text-gb-purple-dim">
+                    {fmt(totalSavings)}
+                  </div>
                 </div>
-                <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Total Savings</span>
-              </div>
-              <div className="text-2xl font-bold text-gb-purple-dim">
-                {fmt(totalSavings)}
-              </div>
-            </div>
 
-            <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className={`${netThisMonth >= 0 ? "bg-gb-green" : "bg-gb-red"} p-1.5 rounded-sm`}>
-                  <TrendingUp size={16} className="text-gb-bg0" />
+                <div className="nb-card-sm rounded-sm bg-gb-bg0 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`${netThisMonth >= 0 ? "bg-gb-green" : "bg-gb-red"} p-1.5 rounded-sm`}>
+                      <TrendingUp size={16} className="text-gb-bg0" />
+                    </div>
+                    <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Net This Month</span>
+                  </div>
+                  <div className={`text-2xl font-bold ${netThisMonth >= 0 ? "text-gb-green-dim" : "text-gb-red-dim"}`}>
+                    {netThisMonth >= 0 ? "+" : ""}{fmt(netThisMonth)}
+                  </div>
                 </div>
-                <span className="text-xs font-bold text-gb-fg4 uppercase tracking-wide">Net This Month</span>
-              </div>
-              <div className={`text-2xl font-bold ${netThisMonth >= 0 ? "text-gb-green-dim" : "text-gb-red-dim"}`}>
-                {netThisMonth >= 0 ? "+" : ""}{fmt(netThisMonth)}
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* Donut Chart + Calendar */}
         <div className="px-4 md:px-6 pb-4 md:pb-6 md:flex-1 md:min-h-0">
           <div className="md:h-full flex flex-col lg:grid lg:grid-cols-3 gap-3 md:gap-6">
-            {/* Donut Chart */}
-            {hasChartData && (
-              <div className="bg-gb-bg0 nb-card rounded-sm p-3 md:p-6 shrink-0 lg:shrink lg:overflow-y-auto flex flex-col items-center justify-center">
-                <div className="text-xs md:text-sm font-medium text-gb-fg4 text-center mb-1 md:mb-3">
-                  {format(currentMonth, "MMMM yyyy")}
+            {dataLoading ? (
+              <>
+                {/* Donut Chart Skeleton */}
+                <div className="bg-gb-bg0 nb-card rounded-sm p-3 md:p-6 shrink-0 lg:shrink lg:overflow-y-auto flex flex-col items-center justify-center">
+                  <Skeleton className="h-4 w-32 mb-3" />
+                  <Skeleton className="w-[140px] h-[140px] md:w-[240px] md:h-[240px] !rounded-full" />
+                  <div className="flex gap-4 mt-4">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
                 </div>
-                <DonutChart
-                  loanTotal={monthSummary.loanTotal}
-                  billTotal={monthSummary.billTotal}
-                  incomeTotal={monthSummary.incomeTotal}
-                  size={isMobile ? 140 : 320}
-                />
-              </div>
-            )}
 
-            {/* Calendar */}
-            <div className="lg:col-span-2 bg-gb-bg0 nb-card rounded-sm p-3 md:p-6 md:flex-1 md:min-h-0 md:overflow-y-auto">
-              <Calendar
-                loans={loans}
-                payments={payments}
-                bills={bills}
-                billPayments={billPayments}
-                currentMonth={currentMonth}
-                onMonthChange={setCurrentMonth}
-                onRecordPayment={recordPayment}
-                onUndoPayment={undoPayment}
-                onRecordBillPayment={recordBillPayment}
-                onUndoBillPayment={undoBillPayment}
-              />
-            </div>
+                {/* Calendar Skeleton */}
+                <div className="lg:col-span-2 bg-gb-bg0 nb-card rounded-sm p-3 md:p-6 md:flex-1 md:min-h-0 md:overflow-y-auto">
+                  <div className="flex items-center justify-between mb-4">
+                    <Skeleton className="h-5 w-8" />
+                    <Skeleton className="h-5 w-36" />
+                    <Skeleton className="h-5 w-8" />
+                  </div>
+                  <div className="grid grid-cols-7 gap-1">
+                    {[...Array(7)].map((_, i) => (
+                      <Skeleton key={`dh-${i}`} className="h-4 w-full mb-1" />
+                    ))}
+                    {[...Array(35)].map((_, i) => (
+                      <Skeleton key={`dc-${i}`} className="h-10 md:h-16 w-full" />
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Donut Chart */}
+                {hasChartData && (
+                  <div className="bg-gb-bg0 nb-card rounded-sm p-3 md:p-6 shrink-0 lg:shrink lg:overflow-y-auto flex flex-col items-center justify-center">
+                    <div className="text-xs md:text-sm font-medium text-gb-fg4 text-center mb-1 md:mb-3">
+                      {format(currentMonth, "MMMM yyyy")}
+                    </div>
+                    <DonutChart
+                      loanTotal={monthSummary.loanTotal}
+                      billTotal={monthSummary.billTotal}
+                      incomeTotal={monthSummary.incomeTotal}
+                      size={isMobile ? 140 : 320}
+                    />
+                  </div>
+                )}
+
+                {/* Calendar */}
+                <div className={`${hasChartData ? "lg:col-span-2" : "lg:col-span-3"} bg-gb-bg0 nb-card rounded-sm p-3 md:p-6 md:flex-1 md:min-h-0 md:overflow-y-auto`}>
+                  <Calendar
+                    loans={loans}
+                    payments={payments}
+                    bills={bills}
+                    billPayments={billPayments}
+                    currentMonth={currentMonth}
+                    onMonthChange={setCurrentMonth}
+                    onRecordPayment={recordPayment}
+                    onUndoPayment={undoPayment}
+                    onRecordBillPayment={recordBillPayment}
+                    onUndoBillPayment={undoBillPayment}
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

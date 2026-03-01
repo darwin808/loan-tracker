@@ -12,6 +12,7 @@ import BillForm from "@/components/BillForm";
 import BillList from "@/components/BillList";
 import SavingsForm from "@/components/SavingsForm";
 import SavingsList from "@/components/SavingsList";
+import Skeleton from "@/components/Skeleton";
 import type { LoanInput, BillInput, SavingsInput, User, Loan, Bill, SavingsAccount } from "@/lib/types";
 
 type ActiveSection = "loans" | "bills" | "income" | "savings";
@@ -140,7 +141,18 @@ export default function SectionPage() {
 
           {section === "loans" && (
             loading ? (
-              <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
+              <div className="space-y-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 border-2 border-gb-bg2 rounded-sm">
+                    <Skeleton className="w-10 h-10 !rounded-full shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-40" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                    <Skeleton className="h-6 w-20" />
+                  </div>
+                ))}
+              </div>
             ) : (
               <LoanList
                 loans={loans}
@@ -153,7 +165,18 @@ export default function SectionPage() {
 
           {section === "bills" && (
             billsLoading ? (
-              <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
+              <div className="space-y-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 border-2 border-gb-bg2 rounded-sm">
+                    <Skeleton className="w-10 h-10 !rounded-full shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-40" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                    <Skeleton className="h-6 w-20" />
+                  </div>
+                ))}
+              </div>
             ) : (
               <BillList
                 bills={bills}
@@ -166,7 +189,18 @@ export default function SectionPage() {
 
           {section === "income" && (
             billsLoading ? (
-              <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
+              <div className="space-y-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 border-2 border-gb-bg2 rounded-sm">
+                    <Skeleton className="w-10 h-10 !rounded-full shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-40" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                    <Skeleton className="h-6 w-20" />
+                  </div>
+                ))}
+              </div>
             ) : (
               <BillList
                 bills={bills}
@@ -179,7 +213,18 @@ export default function SectionPage() {
 
           {section === "savings" && (
             savingsLoading ? (
-              <div className="text-sm text-gb-fg4 text-center py-8">Loading...</div>
+              <div className="space-y-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 border-2 border-gb-bg2 rounded-sm">
+                    <Skeleton className="w-10 h-10 !rounded-full shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-40" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                    <Skeleton className="h-6 w-20" />
+                  </div>
+                ))}
+              </div>
             ) : (
               <SavingsList
                 accounts={savingsAccounts}
