@@ -61,8 +61,8 @@ function Shell({ children }: { children: React.ReactNode }) {
     localStorage.setItem("sidebar-collapsed", String(collapsed));
   }, [collapsed]);
 
-  const handleLogout = useCallback(async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+  const handleLogout = useCallback(() => {
+    fetch("/api/auth/logout", { method: "POST" });
     localStorage.setItem("logout", String(Date.now()));
     router.push("/");
   }, [router]);

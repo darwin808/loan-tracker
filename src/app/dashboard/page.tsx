@@ -45,8 +45,8 @@ export default function DashboardPage() {
     });
   }, [router]);
 
-  const handleLogout = useCallback(async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+  const handleLogout = useCallback(() => {
+    fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
   }, [router]);
 
