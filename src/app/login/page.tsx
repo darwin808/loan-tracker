@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 const OAUTH_ERRORS: Record<string, string> = {
   missing_params: "OAuth login failed. Please try again.",
@@ -128,7 +128,7 @@ function LoginForm() {
               disabled={submitting}
               className="w-full nb-btn rounded-sm bg-gb-blue px-4 py-2.5 text-sm font-bold text-gb-bg0 hover:nb-btn-press disabled:opacity-50"
             >
-              {submitting ? "Please wait..." : isRegister ? "Register" : "Sign In"}
+              {submitting ? <><Loader2 size={16} className="inline animate-spin" /> Please wait...</> : isRegister ? "Register" : "Sign In"}
             </button>
           </form>
 
