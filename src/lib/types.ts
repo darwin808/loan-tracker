@@ -6,6 +6,8 @@ export interface User {
   email: string | null;
   hasPassword: boolean;
   createdAt: string;
+  role: string;
+  impersonatingAs?: { id: number; username: string };
 }
 
 export interface Loan {

@@ -1,6 +1,6 @@
 import { randomBytes, scrypt, timingSafeEqual } from "crypto";
 import { db, initDb } from "./db";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16).toString("hex");
@@ -56,13 +56,54 @@ export async function deleteSession(token: string): Promise<void> {
   await db.execute({ sql: "DELETE FROM sessions WHERE id = ?", args: [token] });
 }
 
-export async function requireAuth(): Promise<{ userId: number }> {
+export interface AuthResult {
+  userId: number;
+  realUserId: number;
+  role: string;
+  isImpersonating: boolean;
+}
+
+export async function requireAuth(): Promise<AuthResult> {
   const cookieStore = await cookies();
   const token = cookieStore.get("session")?.value;
   if (!token) throw new AuthError();
   const session = await getSession(token);
   if (!session) throw new AuthError();
-  return session;
+
+  await initDb;
+  const userResult = await db.execute({
+    sql: "SELECT role FROM users WHERE id = ?",
+    args: [session.userId],
+  });
+  const role = (userResult.rows[0]?.role as string) ?? "user";
+
+  const headerStore = await headers();
+  const impersonateHeader = headerStore.get("x-impersonate-user");
+
+  if (impersonateHeader && role === "superadmin") {
+    const targetId = Number(impersonateHeader);
+    if (!Number.isNaN(targetId)) {
+      const targetResult = await db.execute({
+        sql: "SELECT id FROM users WHERE id = ?",
+        args: [targetId],
+      });
+      if (targetResult.rows.length > 0) {
+        return {
+          userId: targetId,
+          realUserId: session.userId,
+          role,
+          isImpersonating: true,
+        };
+      }
+    }
+  }
+
+  return {
+    userId: session.userId,
+    realUserId: session.userId,
+    role,
+    isImpersonating: false,
+  };
 }
 
 export class AuthError extends Error {

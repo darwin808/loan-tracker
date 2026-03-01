@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { LayoutDashboard, Landmark, Receipt, TrendingUp, PiggyBank, LogOut, ChevronsLeft, ChevronsRight, Heart } from "lucide-react";
+import { LayoutDashboard, Landmark, Receipt, TrendingUp, PiggyBank, LogOut, ChevronsLeft, ChevronsRight, Heart, Users, X } from "lucide-react";
 import { CurrencyProvider, useCurrency } from "@/lib/currency";
+import { ImpersonationProvider, useImpersonation } from "@/lib/impersonation";
 
 const NAV_ITEMS = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", color: "bg-gb-yellow" },
@@ -48,9 +49,93 @@ function MobileCurrencyToggle() {
   );
 }
 
+interface AdminUser {
+  id: number;
+  username: string;
+  email: string | null;
+}
+
+function UserPicker({ collapsed, users, currentUserId }: { collapsed: boolean; users: AdminUser[]; currentUserId: number | null }) {
+  const { impersonatingUserId, setImpersonating } = useImpersonation();
+
+  return (
+    <div className={collapsed ? "w-10" : "w-full px-2"}>
+      <div className={`flex items-center gap-2 mb-1 ${collapsed ? "justify-center" : "px-1"}`}>
+        <Users size={14} className="text-gb-bg3 shrink-0" />
+        {!collapsed && <span className="text-[10px] font-bold text-gb-bg3 uppercase tracking-wide">View as</span>}
+      </div>
+      {collapsed ? (
+        <select
+          title="Impersonate user"
+          value={impersonatingUserId ?? ""}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (!val) {
+              setImpersonating(null);
+            } else {
+              const u = users.find((u) => u.id === Number(val));
+              setImpersonating(Number(val), u?.username);
+            }
+          }}
+          className="w-10 h-8 bg-gb-fg1 text-gb-bg0 text-xs rounded-md border-0 cursor-pointer text-center"
+        >
+          <option value="">Me</option>
+          {users.filter((u) => u.id !== currentUserId).map((u) => (
+            <option key={u.id} value={u.id}>{u.username}</option>
+          ))}
+        </select>
+      ) : (
+        <select
+          value={impersonatingUserId ?? ""}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (!val) {
+              setImpersonating(null);
+            } else {
+              const u = users.find((u) => u.id === Number(val));
+              setImpersonating(Number(val), u?.username);
+            }
+          }}
+          className="w-full bg-gb-fg1 text-gb-bg0 text-xs rounded-md px-2 py-1.5 border-0 cursor-pointer"
+        >
+          <option value="">My Dashboard</option>
+          {users.filter((u) => u.id !== currentUserId).map((u) => (
+            <option key={u.id} value={u.id}>{u.username}</option>
+          ))}
+        </select>
+      )}
+    </div>
+  );
+}
+
+function ImpersonationBanner() {
+  const { impersonatingUsername, setImpersonating } = useImpersonation();
+  if (!impersonatingUsername) return null;
+
+  return (
+    <div className="bg-gb-yellow text-gb-bg0 px-4 py-2 flex items-center justify-between shrink-0">
+      <span className="text-sm font-bold">
+        Viewing as: {impersonatingUsername}
+      </span>
+      <button
+        onClick={() => setImpersonating(null)}
+        className="flex items-center gap-1 text-sm font-bold hover:opacity-80 transition-opacity"
+      >
+        <X size={14} />
+        Stop
+      </button>
+    </div>
+  );
+}
+
 function Shell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+
+  const [role, setRole] = useState<string>("user");
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const isSuperadmin = role === "superadmin";
 
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -60,6 +145,20 @@ function Shell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem("sidebar-collapsed", String(collapsed));
   }, [collapsed]);
+
+  useEffect(() => {
+    fetch("/api/auth/me").then((r) => r.ok ? r.json() : null).then((data) => {
+      if (data) {
+        setRole(data.role ?? "user");
+        setCurrentUserId(data.id);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isSuperadmin) return;
+    fetch("/api/admin/users").then((r) => r.ok ? r.json() : []).then(setAdminUsers);
+  }, [isSuperadmin]);
 
   const handleLogout = useCallback(() => {
     fetch("/api/auth/logout", { method: "POST" });
@@ -123,6 +222,12 @@ function Shell({ children }: { children: React.ReactNode }) {
           })}
         </div>
 
+        {isSuperadmin && (
+          <div className={`mb-2 ${collapsed ? "flex justify-center" : ""}`}>
+            <UserPicker collapsed={collapsed} users={adminUsers} currentUserId={currentUserId} />
+          </div>
+        )}
+
         <div className={`flex flex-col gap-1 ${collapsed ? "items-center" : "w-full px-2"}`}>
           <CurrencyToggle collapsed={collapsed} />
           <a
@@ -162,6 +267,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 
       {/* Main Area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-0 pb-14 md:pb-0">
+        <ImpersonationBanner />
         {children}
       </div>
 
@@ -203,8 +309,10 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
-    <CurrencyProvider>
-      <Shell>{children}</Shell>
-    </CurrencyProvider>
+    <ImpersonationProvider>
+      <CurrencyProvider>
+        <Shell>{children}</Shell>
+      </CurrencyProvider>
+    </ImpersonationProvider>
   );
 }

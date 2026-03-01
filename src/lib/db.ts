@@ -93,6 +93,13 @@ async function runMigrations() {
   // Unique index on email (ALTER TABLE can't add UNIQUE constraint in SQLite)
   await db.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)");
 
+  // Add role column to users
+  try {
+    await db.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'");
+  } catch {
+    // Column already exists — ignore
+  }
+
   // OAuth accounts table
   await db.execute(
     `CREATE TABLE IF NOT EXISTS oauth_accounts (

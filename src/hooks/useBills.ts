@@ -3,9 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { Bill, BillInput, BillPayment } from "@/lib/types";
+import { useImpersonation } from "@/lib/impersonation";
 
 export function useBills() {
   const router = useRouter();
+  const { apiFetch } = useImpersonation();
   const [bills, setBills] = useState<Bill[]>([]);
   const [billPayments, setBillPayments] = useState<BillPayment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +26,8 @@ export function useBills() {
   const fetchAll = useCallback(async () => {
     try {
       const [billsRes, paymentsRes] = await Promise.all([
-        fetch("/api/bills").then(handleResponse),
-        fetch("/api/bill-payments").then(handleResponse),
+        apiFetch("/api/bills").then(handleResponse),
+        apiFetch("/api/bill-payments").then(handleResponse),
       ]);
       setBills(await billsRes.json());
       setBillPayments(await paymentsRes.json());
@@ -35,14 +37,14 @@ export function useBills() {
     } finally {
       setLoading(false);
     }
-  }, [handleResponse]);
+  }, [handleResponse, apiFetch]);
 
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
 
   const addBill = async (input: BillInput) => {
-    const res = await fetch("/api/bills", {
+    const res = await apiFetch("/api/bills", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
@@ -55,7 +57,7 @@ export function useBills() {
   };
 
   const editBill = async (id: number, input: BillInput) => {
-    const res = await fetch(`/api/bills/${id}`, {
+    const res = await apiFetch(`/api/bills/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
@@ -68,12 +70,12 @@ export function useBills() {
   };
 
   const removeBill = async (id: number) => {
-    await fetch(`/api/bills/${id}`, { method: "DELETE" }).then(handleResponse);
+    await apiFetch(`/api/bills/${id}`, { method: "DELETE" }).then(handleResponse);
     await fetchAll();
   };
 
   const recordBillPayment = async (billId: number, date: string, amount: number) => {
-    const res = await fetch("/api/bill-payments", {
+    const res = await apiFetch("/api/bill-payments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ billId, date, amount }),
@@ -86,7 +88,7 @@ export function useBills() {
   };
 
   const undoBillPayment = async (billId: number, date: string) => {
-    await fetch(`/api/bill-payments?billId=${billId}&date=${date}`, { method: "DELETE" }).then(handleResponse);
+    await apiFetch(`/api/bill-payments?billId=${billId}&date=${date}`, { method: "DELETE" }).then(handleResponse);
     await fetchAll();
   };
 

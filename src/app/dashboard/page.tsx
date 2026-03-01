@@ -14,6 +14,7 @@ import DonutChart from "@/components/DonutChart";
 import Skeleton from "@/components/Skeleton";
 import type { User } from "@/lib/types";
 import { useCurrency } from "@/lib/currency";
+import { useImpersonation } from "@/lib/impersonation";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const { fmt } = useCurrency();
+  const { apiFetch } = useImpersonation();
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -34,7 +36,7 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    fetch("/api/auth/me").then((res) => {
+    apiFetch("/api/auth/me").then((res) => {
       if (res.status === 401) {
         router.push("/login");
         return null;
@@ -43,7 +45,7 @@ export default function DashboardPage() {
     }).then((data) => {
       if (data) setUser(data);
     });
-  }, [router]);
+  }, [router, apiFetch]);
 
   const handleLogout = useCallback(() => {
     fetch("/api/auth/logout", { method: "POST" });

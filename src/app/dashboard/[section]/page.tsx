@@ -14,6 +14,7 @@ import SavingsForm from "@/components/SavingsForm";
 import SavingsList from "@/components/SavingsList";
 import Skeleton from "@/components/Skeleton";
 import type { LoanInput, BillInput, SavingsInput, User, Loan, Bill, SavingsAccount } from "@/lib/types";
+import { useImpersonation } from "@/lib/impersonation";
 
 type ActiveSection = "loans" | "bills" | "income" | "savings";
 type AddModal = "loan" | "bill" | "income" | "savings" | null;
@@ -33,6 +34,7 @@ export default function SectionPage() {
   const section = (VALID_SECTIONS.has(params.section as string) ? params.section : "loans") as ActiveSection;
   const config = SECTION_CONFIG[section];
 
+  const { apiFetch } = useImpersonation();
   const { loans, payments, loading, addLoan, editLoan, removeLoan } = useLoans();
   const { bills, loading: billsLoading, addBill, editBill, removeBill } = useBills();
   const { accounts: savingsAccounts, loading: savingsLoading, addAccount, editAccount, removeAccount } = useSavings();
@@ -43,7 +45,7 @@ export default function SectionPage() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    fetch("/api/auth/me").then((res) => {
+    apiFetch("/api/auth/me").then((res) => {
       if (res.status === 401) {
         router.push("/login");
         return null;
@@ -52,7 +54,7 @@ export default function SectionPage() {
     }).then((data) => {
       if (data) setUser(data);
     });
-  }, [router]);
+  }, [router, apiFetch]);
 
   const handleLogout = useCallback(() => {
     fetch("/api/auth/logout", { method: "POST" });

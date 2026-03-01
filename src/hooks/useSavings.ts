@@ -3,9 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { SavingsAccount, SavingsInput } from "@/lib/types";
+import { useImpersonation } from "@/lib/impersonation";
 
 export function useSavings() {
   const router = useRouter();
+  const { apiFetch } = useImpersonation();
   const [accounts, setAccounts] = useState<SavingsAccount[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +24,7 @@ export function useSavings() {
 
   const fetchAll = useCallback(async () => {
     try {
-      const res = await fetch("/api/savings").then(handleResponse);
+      const res = await apiFetch("/api/savings").then(handleResponse);
       setAccounts(await res.json());
     } catch (e) {
       if (e instanceof Error && e.message === "Unauthorized") return;
@@ -30,14 +32,14 @@ export function useSavings() {
     } finally {
       setLoading(false);
     }
-  }, [handleResponse]);
+  }, [handleResponse, apiFetch]);
 
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
 
   const addAccount = async (input: SavingsInput) => {
-    const res = await fetch("/api/savings", {
+    const res = await apiFetch("/api/savings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
@@ -50,7 +52,7 @@ export function useSavings() {
   };
 
   const editAccount = async (id: number, input: SavingsInput) => {
-    const res = await fetch(`/api/savings/${id}`, {
+    const res = await apiFetch(`/api/savings/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
@@ -63,7 +65,7 @@ export function useSavings() {
   };
 
   const removeAccount = async (id: number) => {
-    await fetch(`/api/savings/${id}`, { method: "DELETE" }).then(handleResponse);
+    await apiFetch(`/api/savings/${id}`, { method: "DELETE" }).then(handleResponse);
     await fetchAll();
   };
 

@@ -3,9 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { Loan, LoanInput, Payment } from "@/lib/types";
+import { useImpersonation } from "@/lib/impersonation";
 
 export function useLoans() {
   const router = useRouter();
+  const { apiFetch } = useImpersonation();
   const [loans, setLoans] = useState<Loan[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +26,8 @@ export function useLoans() {
   const fetchAll = useCallback(async () => {
     try {
       const [loansRes, paymentsRes] = await Promise.all([
-        fetch("/api/loans").then(handleResponse),
-        fetch("/api/payments").then(handleResponse),
+        apiFetch("/api/loans").then(handleResponse),
+        apiFetch("/api/payments").then(handleResponse),
       ]);
       setLoans(await loansRes.json());
       setPayments(await paymentsRes.json());
@@ -35,14 +37,14 @@ export function useLoans() {
     } finally {
       setLoading(false);
     }
-  }, [handleResponse]);
+  }, [handleResponse, apiFetch]);
 
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
 
   const addLoan = async (input: LoanInput) => {
-    const res = await fetch("/api/loans", {
+    const res = await apiFetch("/api/loans", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
@@ -55,7 +57,7 @@ export function useLoans() {
   };
 
   const editLoan = async (id: number, input: LoanInput) => {
-    const res = await fetch(`/api/loans/${id}`, {
+    const res = await apiFetch(`/api/loans/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
@@ -68,12 +70,12 @@ export function useLoans() {
   };
 
   const removeLoan = async (id: number) => {
-    await fetch(`/api/loans/${id}`, { method: "DELETE" }).then(handleResponse);
+    await apiFetch(`/api/loans/${id}`, { method: "DELETE" }).then(handleResponse);
     await fetchAll();
   };
 
   const recordPayment = async (loanId: number, date: string, amount: number) => {
-    const res = await fetch("/api/payments", {
+    const res = await apiFetch("/api/payments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ loanId, date, amount }),
@@ -86,7 +88,7 @@ export function useLoans() {
   };
 
   const undoPayment = async (loanId: number, date: string) => {
-    await fetch(`/api/payments?loanId=${loanId}&date=${date}`, { method: "DELETE" }).then(handleResponse);
+    await apiFetch(`/api/payments?loanId=${loanId}&date=${date}`, { method: "DELETE" }).then(handleResponse);
     await fetchAll();
   };
 
