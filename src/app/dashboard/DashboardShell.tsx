@@ -154,8 +154,8 @@ function Shell({ children }: { children: React.ReactNode }) {
   const handleLogout = useCallback(() => {
     fetch("/api/auth/logout", { method: "POST" });
     localStorage.setItem("logout", String(Date.now()));
-    router.push("/");
-  }, [router]);
+    window.location.href = "/";
+  }, []);
 
   // Sync logout across tabs
   useEffect(() => {
