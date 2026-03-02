@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { startOfMonth, endOfMonth, format } from "date-fns";
-import { Landmark, Receipt, TrendingUp, PiggyBank, LogOut } from "lucide-react";
+import { Landmark, Receipt, TrendingUp, PiggyBank } from "lucide-react";
 import { useLoans } from "@/hooks/useLoans";
 import { useBills } from "@/hooks/useBills";
 import { useSavings } from "@/hooks/useSavings";
@@ -47,10 +47,6 @@ export default function DashboardPage() {
     });
   }, [router, apiFetch]);
 
-  const handleLogout = useCallback(() => {
-    fetch("/api/auth/logout", { method: "POST" });
-    router.push("/");
-  }, [router]);
 
   const monthSummary = useMemo(() => {
     const mStart = startOfMonth(currentMonth);
@@ -97,15 +93,11 @@ export default function DashboardPage() {
         <div className="px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
           <h1 className="text-lg md:text-xl font-bold text-gb-fg0">Dashboard</h1>
           {user && (
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gb-fg3">{user.username}</span>
-              <button
-                onClick={handleLogout}
-                className="nb-btn rounded-sm bg-gb-bg0 px-3 py-1 text-sm font-medium text-gb-fg2 hover:nb-btn-press flex items-center gap-1.5"
-              >
-                <LogOut size={14} />
-                Logout
-              </button>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-gb-fg0 flex items-center justify-center">
+                <span className="text-xs font-bold text-gb-bg0 uppercase">{user.username.charAt(0)}</span>
+              </div>
+              <span className="text-sm font-medium text-gb-fg0">{user.username}</span>
             </div>
           )}
         </div>
