@@ -151,8 +151,11 @@ function Shell({ children }: { children: React.ReactNode }) {
     fetch("/api/admin/users").then((r) => r.ok ? r.json() : []).then(setAdminUsers);
   }, [isSuperadmin]);
 
-  const handleLogout = useCallback(() => {
-    fetch("/api/auth/logout", { method: "POST" });
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = useCallback(async () => {
+    setLoggingOut(true);
+    await fetch("/api/auth/logout", { method: "POST" });
     localStorage.setItem("logout", String(Date.now()));
     window.location.href = "/";
   }, []);
@@ -254,10 +257,11 @@ function Shell({ children }: { children: React.ReactNode }) {
           </a>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 rounded-md text-gb-bg3 hover:text-gb-bg0 transition-colors px-3 py-2"
+            disabled={loggingOut}
+            className="flex items-center gap-3 rounded-md text-gb-bg3 hover:text-gb-bg0 transition-colors px-3 py-2 disabled:opacity-50"
           >
-            <LogOut size={20} />
-            <span className="text-sm font-medium">Logout</span>
+            {loggingOut ? <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <LogOut size={20} />}
+            <span className="text-sm font-medium">{loggingOut ? "Logging out…" : "Logout"}</span>
           </button>
         </div>
       </nav>
@@ -328,13 +332,14 @@ function Shell({ children }: { children: React.ReactNode }) {
           </button>
           <button
             onClick={handleLogout}
+            disabled={loggingOut}
             title="Logout"
-            className={`flex items-center gap-3 rounded-md text-gb-bg3 hover:text-gb-bg0 transition-colors ${
+            className={`flex items-center gap-3 rounded-md text-gb-bg3 hover:text-gb-bg0 transition-colors disabled:opacity-50 ${
               collapsed ? "w-10 h-10 justify-center" : "px-3 py-2"
             }`}
           >
-            <LogOut size={20} />
-            {!collapsed && <span className="text-sm font-medium">Logout</span>}
+            {loggingOut ? <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <LogOut size={20} />}
+            {!collapsed && <span className="text-sm font-medium">{loggingOut ? "Logging out…" : "Logout"}</span>}
           </button>
         </div>
       </nav>
