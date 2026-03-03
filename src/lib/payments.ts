@@ -69,6 +69,14 @@ function dateAtOffset(start: Date, offset: number, frequency: string): Date {
       const target = new Date(next.getFullYear(), next.getMonth(), dayOfMonth);
       return min([target, lastDay]);
     }
+    case "semi-monthly": {
+      const monthOffset = Math.floor(offset / 2);
+      const next = addMonths(start, monthOffset);
+      if (offset % 2 === 0) {
+        return new Date(next.getFullYear(), next.getMonth(), 15);
+      }
+      return endOfMonth(next);
+    }
     default:
       return addDays(start, offset);
   }

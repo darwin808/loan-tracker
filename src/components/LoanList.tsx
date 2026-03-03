@@ -20,6 +20,7 @@ interface LoanListProps {
 const RATE_SUFFIX: Record<string, string> = {
   daily: "/day",
   weekly: "/wk",
+  "semi-monthly": "/2×mo",
   monthly: "/mo",
 };
 

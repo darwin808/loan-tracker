@@ -21,6 +21,7 @@ const FREQUENCY_LABELS: Record<string, string> = {
   daily: "Daily",
   weekly: "Weekly",
   biweekly: "Every 2 Wks",
+  "semi-monthly": "Semi-monthly",
   monthly: "Monthly",
   yearly: "Yearly",
 };
@@ -29,6 +30,7 @@ const RATE_SUFFIX: Record<string, string> = {
   daily: "/day",
   weekly: "/wk",
   biweekly: "/2wk",
+  "semi-monthly": "/2×mo",
   monthly: "/mo",
   yearly: "/yr",
 };

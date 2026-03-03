@@ -16,7 +16,7 @@ export async function GET() {
   }
 }
 
-const VALID_FREQUENCIES: BillFrequency[] = ["once", "daily", "weekly", "biweekly", "monthly", "yearly"];
+const VALID_FREQUENCIES: BillFrequency[] = ["once", "daily", "weekly", "biweekly", "semi-monthly", "monthly", "yearly"];
 const VALID_TYPES: BillType[] = ["expense", "income"];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 

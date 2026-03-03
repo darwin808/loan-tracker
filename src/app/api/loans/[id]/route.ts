@@ -5,7 +5,7 @@ import type { LoanInput, Frequency } from "@/lib/types";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
-const VALID_FREQUENCIES: Frequency[] = ["daily", "weekly", "monthly"];
+const VALID_FREQUENCIES: Frequency[] = ["daily", "weekly", "monthly", "semi-monthly"];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function PUT(request: Request, { params }: RouteParams) {

@@ -1,4 +1,4 @@
-export type Frequency = "daily" | "weekly" | "monthly";
+export type Frequency = "daily" | "weekly" | "monthly" | "semi-monthly";
 
 export interface User {
   id: number;
@@ -46,7 +46,7 @@ export interface ScheduleEntry {
 
 // ── Bills ──────────────────────────────────────────────────
 
-export type BillFrequency = "once" | "daily" | "weekly" | "biweekly" | "monthly" | "yearly";
+export type BillFrequency = "once" | "daily" | "weekly" | "biweekly" | "semi-monthly" | "monthly" | "yearly";
 export type BillType = "expense" | "income";
 
 export interface Bill {
