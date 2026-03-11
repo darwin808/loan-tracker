@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckCircle, Undo2, X } from "lucide-react";
 import type { LoanColor } from "@/lib/colors";
 import { useCurrency } from "@/lib/currency";
+import BreakdownPanel from "./BreakdownPanel";
 
 export interface PaymentDialogData {
   type: "loan" | "bill" | "income";
@@ -139,6 +140,10 @@ export default function PaymentDialog({ data, onRecord, onUndo, onRecordBillPaym
               </button>
             </div>
           </div>
+        )}
+
+        {isBill && data.type === "bill" && (
+          <BreakdownPanel billId={data.itemId} date={data.date} />
         )}
       </div>
     </div>

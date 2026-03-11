@@ -82,6 +82,17 @@ export interface BillScheduleEntry {
   paidAmount: number | null;
 }
 
+// ── Bill Payment Items (breakdown) ──────────────────────
+
+export interface BillPaymentItem {
+  id: number;
+  billId: number;
+  date: string;
+  description: string;
+  amount: number;
+  createdAt: string;
+}
+
 // ── Savings ─────────────────────────────────────────────
 
 export interface SavingsAccount {

@@ -100,6 +100,18 @@ async function runMigrations() {
     // Column already exists — ignore
   }
 
+  // Bill payment items (breakdown line items)
+  await db.execute(
+    `CREATE TABLE IF NOT EXISTS bill_payment_items (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      bill_id     INTEGER NOT NULL REFERENCES bills(id) ON DELETE CASCADE,
+      date        TEXT NOT NULL,
+      description TEXT NOT NULL,
+      amount      REAL NOT NULL,
+      created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+    )`
+  );
+
   // OAuth accounts table
   await db.execute(
     `CREATE TABLE IF NOT EXISTS oauth_accounts (
