@@ -9,6 +9,7 @@ interface LoanFormProps {
   onSubmit: (input: LoanInput) => Promise<void>;
   editingLoan?: Loan | null;
   onCancelEdit?: () => void;
+  defaultStartDate?: string;
 }
 
 const EMPTY_FORM: LoanInput = {
@@ -19,7 +20,7 @@ const EMPTY_FORM: LoanInput = {
   startDate: "",
 };
 
-export default function LoanForm({ onSubmit, editingLoan, onCancelEdit }: LoanFormProps) {
+export default function LoanForm({ onSubmit, editingLoan, onCancelEdit, defaultStartDate }: LoanFormProps) {
   const { fmt, currency } = useCurrency();
   const [form, setForm] = useState<LoanInput>(
     editingLoan
@@ -30,6 +31,8 @@ export default function LoanForm({ onSubmit, editingLoan, onCancelEdit }: LoanFo
           frequency: editingLoan.frequency,
           startDate: editingLoan.startDate,
         }
+      : defaultStartDate
+      ? { ...EMPTY_FORM, startDate: defaultStartDate }
       : EMPTY_FORM
   );
   const [error, setError] = useState("");

@@ -9,13 +9,14 @@ interface BillFormProps {
   editingBill?: Bill | null;
   onCancelEdit?: () => void;
   defaultType?: BillType;
+  defaultStartDate?: string;
 }
 
 function emptyForm(type: BillType): BillInput {
   return { name: "", amount: 0, frequency: "monthly", startDate: "", type };
 }
 
-export default function BillForm({ onSubmit, editingBill, onCancelEdit, defaultType = "expense" }: BillFormProps) {
+export default function BillForm({ onSubmit, editingBill, onCancelEdit, defaultType = "expense", defaultStartDate }: BillFormProps) {
   const [form, setForm] = useState<BillInput>(
     editingBill
       ? {
@@ -25,6 +26,8 @@ export default function BillForm({ onSubmit, editingBill, onCancelEdit, defaultT
           startDate: editingBill.startDate,
           type: editingBill.type,
         }
+      : defaultStartDate
+      ? { ...emptyForm(defaultType), startDate: defaultStartDate }
       : emptyForm(defaultType)
   );
   const [error, setError] = useState("");

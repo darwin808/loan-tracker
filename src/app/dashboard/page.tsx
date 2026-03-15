@@ -18,8 +18,8 @@ import { useImpersonation } from "@/lib/impersonation";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { loans, payments, loading: loansLoading, recordPayment, undoPayment } = useLoans();
-  const { bills, billPayments, loading: billsLoading, recordBillPayment, undoBillPayment } = useBills();
+  const { loans, payments, loading: loansLoading, recordPayment, undoPayment, addLoan } = useLoans();
+  const { bills, billPayments, loading: billsLoading, recordBillPayment, undoBillPayment, addBill } = useBills();
   const { accounts: savingsAccounts, loading: savingsLoading } = useSavings();
   const dataLoading = loansLoading || billsLoading || savingsLoading;
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -237,6 +237,8 @@ export default function DashboardPage() {
                     onUndoPayment={undoPayment}
                     onRecordBillPayment={recordBillPayment}
                     onUndoBillPayment={undoBillPayment}
+                    onAddLoan={addLoan}
+                    onAddBill={addBill}
                   />
                 </div>
               </>

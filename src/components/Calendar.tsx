@@ -19,10 +19,11 @@ import CalendarDayCell, { type DayPayment } from "./CalendarDayCell";
 import PaymentDialog, { type PaymentDialogData } from "./PaymentDialog";
 import DayOverviewDialog from "./DayOverviewDialog";
 import RangeSummaryDialog from "./RangeSummaryDialog";
+import AddEntryDialog from "./AddEntryDialog";
 import { getPaymentSchedule } from "@/lib/payments";
 import { getBillSchedule } from "@/lib/bill-schedule";
 import { getLoanColor, getBillColor, getIncomeColor } from "@/lib/colors";
-import type { Loan, Payment, Bill, BillPayment } from "@/lib/types";
+import type { Loan, Payment, Bill, BillPayment, LoanInput, BillInput } from "@/lib/types";
 
 interface CalendarProps {
   loans: Loan[];
@@ -35,6 +36,8 @@ interface CalendarProps {
   onUndoPayment: (loanId: number, date: string) => Promise<void>;
   onRecordBillPayment: (billId: number, date: string, amount: number) => Promise<void>;
   onUndoBillPayment: (billId: number, date: string) => Promise<void>;
+  onAddLoan: (input: LoanInput) => Promise<void>;
+  onAddBill: (input: BillInput) => Promise<void>;
 }
 
 type ViewMode = "month" | "year";
@@ -42,11 +45,12 @@ type ViewMode = "month" | "year";
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const WEEKDAYS_SHORT = ["S", "M", "T", "W", "T", "F", "S"];
 
-export default function Calendar({ loans, payments, bills, billPayments, currentMonth, onMonthChange: setCurrentMonth, onRecordPayment, onUndoPayment, onRecordBillPayment, onUndoBillPayment }: CalendarProps) {
+export default function Calendar({ loans, payments, bills, billPayments, currentMonth, onMonthChange: setCurrentMonth, onRecordPayment, onUndoPayment, onRecordBillPayment, onUndoBillPayment, onAddLoan, onAddBill }: CalendarProps) {
   const [view, setView] = useState<ViewMode>("month");
   const [dialog, setDialog] = useState<PaymentDialogData | null>(null);
   const [dayOverview, setDayOverview] = useState<{ payments: DayPayment[]; date: string } | null>(null);
   const [rangeSummary, setRangeSummary] = useState<{ start: string; end: string } | null>(null);
+  const [addEntryDate, setAddEntryDate] = useState<string | null>(null);
   const [dragStart, setDragStart] = useState<string | null>(null);
   const [dragEnd, setDragEnd] = useState<string | null>(null);
   const isDragging = dragStart !== null;
@@ -65,6 +69,8 @@ export default function Calendar({ loans, payments, bills, billPayments, current
       const [start, end] = dragStart <= dragEnd ? [dragStart, dragEnd] : [dragEnd, dragStart];
       if (start !== end) {
         setRangeSummary({ start, end });
+      } else {
+        setAddEntryDate(start);
       }
     }
     setDragStart(null);
@@ -242,6 +248,15 @@ export default function Calendar({ loans, payments, bills, billPayments, current
           endDate={rangeSummary.end}
           paymentMap={paymentMap}
           onClose={() => setRangeSummary(null)}
+        />
+      )}
+
+      {addEntryDate && (
+        <AddEntryDialog
+          date={addEntryDate}
+          onAddLoan={onAddLoan}
+          onAddBill={onAddBill}
+          onClose={() => setAddEntryDate(null)}
         />
       )}
 
